@@ -15,6 +15,7 @@ public class Vanguards extends JFrame {
     private static final Color XP_ORANGE = new Color(255, 170, 0);
     private static final Color ENERGY_BLUE = new Color(0, 180, 255);
     private static final Color SHIELD_CYAN = new Color(100, 255, 210);
+    private static final Color ULT_MAGENTA = new Color(255, 50, 200);
 
     // Cached Font & Stroke Objects for Performance
     private static final Font UI_FONT = new Font("SansSerif", Font.BOLD, 14);
@@ -74,6 +75,7 @@ public class Vanguards extends JFrame {
         mainContainer.add(new TitleScreen(), "TITLE");
         mainContainer.add(new TutorialScreen(), "TUTORIAL");
         mainContainer.add(new ClassSelect(), "SELECT");
+
         introScreen = new IntroScreen();
         mainContainer.add(introScreen, "INTRO");
 
@@ -82,6 +84,7 @@ public class Vanguards extends JFrame {
 
         battlePanel = new BattlePanel();
         mainContainer.add(battlePanel, "BATTLE");
+
         deathScreen = new DeathScreen();
         mainContainer.add(deathScreen, "DEATH");
 
@@ -95,7 +98,12 @@ public class Vanguards extends JFrame {
         OPERATOR("Operator", "Scales with: DEX & ACC", new Color(160, 20, 30), new Color(40, 10, 15)),
         RANGER("Ranger", "Scales with: AGI & LUK", new Color(30, 120, 50), new Color(10, 30, 15)),
         PALADIN("Paladin", "Scales with: CON & CHA", new Color(200, 150, 20), new Color(45, 35, 10)),
-        RONIN("Ronin", "Scales with: DEX & CRT", new Color(180, 50, 50), new Color(40, 15, 15));
+        RONIN("Ronin", "Scales with: DEX & CRT", new Color(180, 50, 50), new Color(40, 15, 15)),
+        BARD("Bard", "Scales with: CHA & LUK", new Color(220, 100, 200), new Color(45, 10, 40)),
+        DRUID("Druid", "Scales with: WIS & CON", new Color(50, 180, 80), new Color(10, 40, 15)),
+        NECROMANCER("Necromancer", "Scales with: INT & CON", new Color(80, 20, 100), new Color(20, 5, 25)),
+        ALCHEMIST("Alchemist", "Scales with: INT & LUK", new Color(200, 150, 50), new Color(40, 30, 10));
+
         String title, scaleDesc; Color color, darkBg;
         ClassType(String t, String desc, Color c, Color bg) {
             title = t;
@@ -108,6 +116,7 @@ public class Vanguards extends JFrame {
         NECROMANCER("Necromancer", new Color(120, 40, 200)),
         MECHA_CORE("Mecha-Core", new Color(60, 200, 220)),
         VOID_DRAGON("Void Dragon", new Color(40, 10, 60));
+
         String name; Color color;
         BossArchetype(String n, Color c) { name = n; color = c; }
     }
@@ -119,6 +128,7 @@ public class Vanguards extends JFrame {
         LEGENDARY(new Color(255, 180, 0), 5.5, "Legendary", 200),
         MYTHIC(new Color(255, 50, 150), 9.0, "Mythical", 500),
         GODLY(new Color(0, 255, 200), 16.0, "Godly", 1500);
+
         Color col; double multiplier; String name; int sellValue;
         Rarity(Color c, double m, String n, int sv) {
             col = c;
@@ -129,6 +139,7 @@ public class Vanguards extends JFrame {
     enum EnemyType {
         BRUTE("Brute", new Color(200, 50, 50)), ASSASSIN("Assassin", new Color(50, 200, 100)),
         MAGE("Mage", new Color(150, 50, 200)), TANK("Tank", new Color(100, 100, 100));
+
         String typeName; Color typeColor;
         EnemyType(String n, Color c) { typeName = n; typeColor = c; }
     }
@@ -151,7 +162,8 @@ public class Vanguards extends JFrame {
         public Equipment(String n, int p, int h, int a, int d, int s, int l, int st, int co, int de, int in, int wi, int ch, Rarity r) {
             super(n, p, r);
             hp = h; atk = a; def = d; spd = s; luk = l;
-            str = st; con = co; dex = de; intelligence = in; wis = wi; cha = ch;
+            str = st;
+            con = co; dex = de; intelligence = in; wis = wi; cha = ch;
         }
         public String getStatsString() {
             return "HP: " + hp + " | ATK: " + atk + " | DEF: " + def + " | SPD: " + spd + " | LUK: " + luk +
@@ -243,6 +255,7 @@ public class Vanguards extends JFrame {
         int winStreak = 0, fleePenalty = 10;
         int potionsUsedThisBattle = 0;
         boolean hasPet = false;
+        int ultStacks = 0;
 
         List<Weapon> equippedWeapons = new ArrayList<>();
         List<Armor> equippedArmors = new ArrayList<>();
@@ -258,6 +271,10 @@ public class Vanguards extends JFrame {
             if(c == ClassType.RANGER) { spd = 40; luk = 20; maxHp = hp = 240; atk = 30; def = 15; agi += 15; }
             if(c == ClassType.PALADIN) { maxHp = hp = 350; def = 25; atk = 35; spd = 5; luk = 5; cha += 15; con += 10; }
             if(c == ClassType.RONIN) { maxHp = hp = 250; atk = 45; spd = 35; luk = 15; def = 10; dex += 20; crt += 15; }
+            if(c == ClassType.BARD) { maxHp = hp = 280; atk = 25; spd = 20; luk += 15; cha += 20; }
+            if(c == ClassType.DRUID) { maxHp = hp = 320; atk = 30; def = 20; wis += 20; con += 15; }
+            if(c == ClassType.NECROMANCER) { maxHp = hp = 290; atk = 35; luk = 15; intelligence += 20; con += 10; }
+            if(c == ClassType.ALCHEMIST) { maxHp = hp = 270; spd = 15; def = 15; intelligence += 15; luk += 20; }
             displayEnergy = energy;
         }
 
@@ -277,7 +294,6 @@ public class Vanguards extends JFrame {
         public int getTotalDef() { return def + getBonusStats()[2]; }
         public int getTotalSpd() { return spd + getBonusStats()[3]; }
         public int getTotalLuk() { return luk + getBonusStats()[4]; }
-
         public int getTotalStr() { return str + getBonusStats()[5]; }
         public int getTotalCon() { return con + getBonusStats()[6]; }
         public int getTotalDex() { return dex + getBonusStats()[7]; }
@@ -361,8 +377,8 @@ public class Vanguards extends JFrame {
                 g.setColor(hitFlash > 0 ? Color.WHITE : color);
                 g.fillRoundRect(px, py, 60, 85, 15, 15);
                 g.setColor(new Color(50, 40, 60)); g.fillOval(px-20, py+30, 40, 50);
-                // Extra Design: Hilt, Emblem, Visor
-                g.setColor(new Color(212, 175, 55)); g.fillRect(px+50, py+35, 20, 5);
+                g.setColor(new Color(212, 175, 55));
+                g.fillRect(px+50, py+35, 20, 5);
                 g.setColor(Color.WHITE); g.fillRect(px-15, py+50, 20, 5); g.fillRect(px-7, py+40, 5, 25);
                 g.setColor(Color.DARK_GRAY); g.fillRect(px+10, py+15, 40, 5);
             }
@@ -370,10 +386,11 @@ public class Vanguards extends JFrame {
                 g.fillPolygon(new int[]{px+30, px-15, px+75}, new int[]{py, py+85, py+85}, 3);
                 g.setColor(new Color(0, 255, 255)); g.fillOval(px+58, py-25, 20, 20);
                 g.fillOval(px+10, py-30, 15, 15);
-                // Extra Design: Staff shaft, Cape, Spellbook
-                g.setColor(new Color(139, 69, 19)); g.fillRect(px+65, py-15, 5, 90);
+                g.setColor(new Color(139, 69, 19));
+                g.fillRect(px+65, py-15, 5, 90);
                 g.setColor(new Color(80, 20, 100)); g.fillPolygon(new int[]{px+10, px-20, px+40}, new int[]{py+20, py+90, py+90}, 3);
-                g.setColor(Color.BLUE); g.fillRect(px-10, py+40, 15, 20);
+                g.setColor(Color.BLUE);
+                g.fillRect(px-10, py+40, 15, 20);
                 g.setColor(Color.WHITE); g.drawLine(px-5, py+45, px+2, py+45);
             }
             else if(cls == ClassType.RANGER) {
@@ -382,8 +399,8 @@ public class Vanguards extends JFrame {
                 g.setColor(hitFlash > 0 ? Color.WHITE : color);
                 g.fillPolygon(new int[]{px, px+20, px+40}, new int[]{py+80, py, py+80}, 3);
                 g.setColor(Color.GREEN); g.fillOval(px+15, py+30, 10, 10);
-                // Extra Design: Bow String, Arrow, Hood Detail
-                g.setColor(Color.WHITE); g.drawLine(px+10, py+10, px+10, py+70);
+                g.setColor(Color.WHITE);
+                g.drawLine(px+10, py+10, px+10, py+70);
                 g.setColor(Color.LIGHT_GRAY); g.drawLine(px+10, py+40, px+30, py+40);
                 g.setColor(Color.BLACK); g.fillOval(px+15, py+15, 10, 10);
             }
@@ -394,8 +411,8 @@ public class Vanguards extends JFrame {
                 g.fillRect(px, py, 50, 85);
                 g.setColor(Color.YELLOW); g.fillRect(px+20, py+10, 10, 50);
                 g.fillRect(px+10, py+30, 30, 10);
-                // Extra Design: Cross, Halo
-                g.setColor(Color.WHITE); g.fillRect(px+20, py+35, 10, 30); g.fillRect(px+10, py+45, 30, 10);
+                g.setColor(Color.WHITE);
+                g.fillRect(px+20, py+35, 10, 30); g.fillRect(px+10, py+45, 30, 10);
                 g.setColor(Color.YELLOW); g.drawOval(px+5, py-15, 40, 15);
             }
             else if(cls == ClassType.RONIN) {
@@ -403,20 +420,59 @@ public class Vanguards extends JFrame {
                 g.setColor(Color.DARK_GRAY); g.fillOval(px-5, py, 60, 20);
                 g.setColor(Color.LIGHT_GRAY);
                 g.fillRect(px+45, py+40, 40, 5);
-                // Extra Design: Extended Blade, Scarf
-                g.setColor(Color.LIGHT_GRAY); g.drawLine(px+65, py+42, px+95, py+42);
+                g.setColor(Color.LIGHT_GRAY);
+                g.drawLine(px+65, py+42, px+95, py+42);
                 g.setColor(Color.RED); g.fillRect(px, py+10, 50, 5);
                 g.fillPolygon(new int[]{px, px-15, px-10}, new int[]{py+10, py+20, py+30}, 3);
+            }
+            else if(cls == ClassType.BARD) {
+                g.fillRoundRect(px-5, py+10, 40, 75, 10, 10);
+                g.setColor(new Color(139, 69, 19));
+                g.fillOval(px+5, py+35, 30, 40);
+                g.fillRect(px+15, py+15, 10, 30);
+                g.setColor(Color.MAGENTA);
+                g.fillPolygon(new int[]{px-10, px+20, px+40}, new int[]{py+10, py-10, py+10}, 3);
+                g.setColor(Color.YELLOW); g.fillOval(px+35, py-15, 8, 15);
+            }
+            else if(cls == ClassType.DRUID) {
+                g.fillRoundRect(px, py+5, 45, 80, 5, 5);
+                g.setColor(new Color(101, 67, 33));
+                g.drawLine(px+10, py+5, px-5, py-15); g.drawLine(px-5, py-15, px-15, py-10);
+                g.drawLine(px+35, py+5, px+50, py-15); g.drawLine(px+50, py-15, px+60, py-10);
+                g.setColor(new Color(34, 139, 34));
+                g.fillOval(px-5, py+30, 60, 10);
+                g.fillOval(px+15, py+50, 60, 10);
+            }
+            else if(cls == ClassType.NECROMANCER) {
+                g.fillPolygon(new int[]{px+20, px-10, px+50}, new int[]{py, py+85, py+85}, 3);
+                g.setColor(Color.WHITE);
+                g.fillOval(px+10, py-10, 20, 25);
+                g.setColor(Color.BLACK); g.fillOval(px+13, py-3, 5, 5); g.fillOval(px+22, py-3, 5, 5);
+                g.setColor(Color.GRAY);
+                g.fillRect(px+40, py, 5, 90);
+                g.fillArc(px+20, py-10, 30, 30, 45, 180);
+            }
+            else if(cls == ClassType.ALCHEMIST) {
+                g.fillRoundRect(px+5, py+10, 35, 75, 8, 8);
+                g.setColor(Color.CYAN);
+                g.fillOval(px+5, py, 15, 15); g.fillOval(px+25, py, 15, 15);
+                g.setColor(Color.BLACK); g.drawLine(px+20, py+7, px+25, py+7);
+                g.setColor(Color.GREEN);
+                g.fillPolygon(new int[]{px-10, px-20, px}, new int[]{py+40, py+60, py+60}, 3);
+                g.setColor(Color.WHITE); g.fillRect(px-12, py+35, 4, 5);
             }
             else {
                 g.fillRoundRect(px+10, py, 40, 85, 20, 20);
                 g.setColor(Color.CYAN); g.fillRect(px+15, py+20, 30, 8);
                 g.setColor(Color.DARK_GRAY);
                 g.fillArc(px+5, py-5, 50, 45, 0, 180);
-                // Extra Design: Goggles, Backpack, Rifle
-                g.setColor(Color.GREEN); g.fillOval(px+15, py+15, 12, 12); g.fillOval(px+30, py+15, 12, 12);
+                g.setColor(Color.GREEN);
+                g.fillOval(px+15, py+15, 12, 12);
+                g.fillOval(px+30, py+15, 12, 12);
                 g.setColor(new Color(100, 80, 50)); g.fillRoundRect(px-10, py+20, 15, 40, 5, 5);
-                g.setColor(Color.DARK_GRAY); g.fillRect(px+45, py+30, 40, 10); g.fillRect(px+55, py+40, 10, 15);
+                g.setColor(Color.DARK_GRAY);
+                g.fillRect(px+45, py+30, 40, 10);
+                g.fillRect(px+55, py+40, 10, 15);
             }
 
             if(hasPet) {
@@ -427,8 +483,14 @@ public class Vanguards extends JFrame {
             }
 
             g.setFont(FONT_SANSSERIF_BOLD_12);
+            g.setColor(Color.WHITE);
+            int nameWidth = g.getFontMetrics().stringWidth(name);
+            g.drawString(name, px + (30 - nameWidth/2), py - 50);
+
             g.setColor(Color.LIGHT_GRAY);
-            g.drawString("<" + getRankTitle() + ">", px - 10, py - 35);
+            String rank = "<" + getRankTitle() + ">";
+            int rankWidth = g.getFontMetrics().stringWidth(rank);
+            g.drawString(rank, px + (30 - rankWidth/2), py - 35);
 
             int textY = py - 15;
             g.setFont(FONT_IMPACT_14);
@@ -442,7 +504,6 @@ public class Vanguards extends JFrame {
         boolean isBoss;
         int turnCounter = 0; EnemyType archetype; EliteModifier elite = EliteModifier.NONE;
         BossArchetype bossArchetype;
-
         public Enemy(String n, int stage, boolean boss) {
             super(boss ? "OVERLORD: " + n : n, 0,0,0,0,0, Color.WHITE);
             this.isBoss = boss; this.level = stage;
@@ -536,10 +597,8 @@ public class Vanguards extends JFrame {
                 }
             } else {
                 if(archetype == EnemyType.TANK) { g.fillRoundRect(px, py, 70, 70, 10, 10); }
-                else if(archetype == EnemyType.ASSASSIN) { Polygon p = new Polygon(new int[]{px+35, px+70, px}, new int[]{py, py+70, py+70}, 3);
-                    g.fillPolygon(p); }
-                else { Polygon minion = new Polygon(new int[]{px+35, px+70, px+35, px}, new int[]{py, py+35, py+70, py+35}, 4);
-                    g.fillPolygon(minion); }
+                else if(archetype == EnemyType.ASSASSIN) { Polygon p = new Polygon(new int[]{px+35, px+70, px}, new int[]{py, py+70, py+70}, 3); g.fillPolygon(p); }
+                else { Polygon minion = new Polygon(new int[]{px+35, px+70, px+35, px}, new int[]{py, py+35, py+70, py+35}, 4); g.fillPolygon(minion); }
                 g.setColor(Color.BLACK);
                 g.fillOval(px+20, py+20, 30, 30);
                 g.setColor(Color.RED); g.fillOval(px+30, py+30, 10, 10);
@@ -560,26 +619,34 @@ public class Vanguards extends JFrame {
         double x, y, speedX, speedY, size;
         Color c; int life = 100; boolean temporary = false;
 
+        // Ambient Constructor
         public Particle(Color c, boolean temp, double startX, double startY) {
-            this.c = c;
-            this.temporary = temp;
-            size = 2 + Math.random() * 4;
-            if(temp) {
-                x = startX + (Math.random()*40 - 20); y = startY + (Math.random()*40 - 20);
-                speedY = 1 + Math.random() * 3; speedX = (Math.random() - 0.5) * 4;
-                life = 30 + (int)(Math.random() * 20);
+            this(c, temp, startX, startY, (Math.random() - 0.5) * 4, 1 + Math.random() * 3, 30 + (int)(Math.random() * 20), 2 + Math.random() * 4);
+            if(!temp) {
+                this.speedY = 0.5 + Math.random() * 2; this.speedX = 0;
+                this.x = Math.random() * 1350; this.y = Math.random() * 480;
             } else {
-                x = Math.random() * 1350; y = Math.random() * 480;
-                speedY = 0.5 + Math.random() * 2; speedX = 0;
+                this.x = startX + (Math.random()*40 - 20);
+                this.y = startY + (Math.random()*40 - 20);
             }
         }
+
+        // Advanced Constructor for Impact Effects
+        public Particle(Color c, boolean temp, double startX, double startY, double vx, double vy, int life, double size) {
+            this.c = c; this.temporary = temp; this.x = startX; this.y = startY;
+            this.speedX = vx; this.speedY = vy; this.life = life; this.size = size;
+        }
+
         public boolean update() {
-            y -= speedY;
-            x += speedX;
-            if (temporary) { life--; return life <= 0; }
+            if (temporary) {
+                y -= speedY; x += speedX;
+                life--; return life <= 0;
+            }
+            y -= speedY; x += speedX;
             if(y < 0) { y = 480; x = Math.random() * 1350; }
             return false;
         }
+
         public void draw(Graphics2D g) {
             int alpha = temporary ? Math.max(0, Math.min(255, life * 5)) : 60;
             g.setColor(new Color(c.getRed(), c.getGreen(), c.getBlue(), alpha));
@@ -686,24 +753,37 @@ public class Vanguards extends JFrame {
             title.setForeground(ACCENT_COL);
             add(title, BorderLayout.NORTH);
 
-            String tutorialHtml = "<html><body style='width: 760px; color: #F5F5F5; font-family: SansSerif; font-size: 16px; line-height: 1.5;'>"
-                    + "<div style='text-align: center; margin-bottom: 15px;'><font color='#D4AF37' size='+2'><b>COMBAT SYSTEM</b></font><br>Spend Energy to use class abilities. String attacks together to build Combos for massive damage multipliers.</div>"
-                    + "<table style='width: 100%; font-size: 16px;'>"
-                    + "<tr><td style='width: 50%; padding: 10px;'>"
-                    + "<font color='#D4AF37'><b>PRIMARY STATS</b></font><br>"
-                    + "• ATK: Increases damage dealt.<br>"
-                    + "• DEF: Reduces damage taken.<br>"
-                    + "• SPD: Increases Evasion & Parry chances.<br>"
-                    + "• LUK: Increases Critical Hit chance."
-                    + "</td><td style='width: 50%; padding: 10px;'>"
-                    + "<font color='#D4AF37'><b>EQUIPMENT & LIMITS</b></font><br>"
-                    + "• Weapons: Max 2 equipped<br>"
-                    + "• Armor: Max 4 equipped<br>"
-                    + "• Relics: Max 10 equipped<br>"
+            String tutorialHtml = "<html><body style='width: 760px; color: #F5F5F5; font-family: SansSerif; font-size: 16px;'>"
+                    + "<div align='center'>"
+                    + "<h2><font color='#D4AF37'>COMBAT SYSTEM</font></h2>"
+                    + "Spend Energy to use class abilities. String attacks together to build Combos for massive damage multipliers.<br><br>"
+                    + "</div>"
+                    + "<table width='100%' cellpadding='10'>"
+                    + "<tr><td width='50%' valign='top' bgcolor='#2a2a35'>"
+                    + "<div align='center'><h3><font color='#D4AF37'>PRIMARY STATS</font></h3></div>"
+                    + "<ul>"
+                    + "<li><b>ATK:</b> Increases damage dealt.</li>"
+                    + "<li><b>DEF:</b> Reduces damage taken.</li>"
+                    + "<li><b>SPD:</b> Increases Evasion & Parry chances.</li>"
+                    + "<li><b>LUK:</b> Increases Critical Hit chance.</li>"
+                    + "</ul>"
+                    + "</td>"
+                    + "<td width='50%' valign='top' bgcolor='#2a2a35'>"
+                    + "<div align='center'><h3><font color='#D4AF37'>EQUIPMENT & LIMITS</font></h3></div>"
+                    + "<ul>"
+                    + "<li><b>Weapons:</b> Max 2 equipped</li>"
+                    + "<li><b>Armor:</b> Max 4 equipped</li>"
+                    + "<li><b>Relics:</b> Max 10 equipped</li>"
+                    + "</ul>"
                     + "Equipment grants massive stat bonuses and passives."
                     + "</td></tr></table>"
-                    + "<div style='text-align: center; margin-top: 15px;'><font color='#D4AF37' size='+2'><b>SHOP & BOUNTIES</b></font><br>Slay enemies to earn Gold and complete Bounties. Use Gold in the Shop to buy gear, potions, and upgrades. The Shop refreshes every 3 battles.<br><br>"
-                    + "<font color='#D4AF37' size='+2'><b>MYSTERY BOX PITY</b></font><br>If you hit 4 low-tier drops in a row, the 5th box guarantees Epic or higher.</div>"
+                    + "<br>"
+                    + "<div align='center' bgcolor='#2a2a35' style='padding: 10px;'>"
+                    + "<h2><font color='#D4AF37'>SHOP & BOUNTIES</font></h2>"
+                    + "Slay enemies to earn Gold and complete Bounties. Use Gold in the Shop to buy gear, potions, and upgrades. The Shop refreshes every 3 battles.<br><br>"
+                    + "<h2><font color='#D4AF37'>MYSTERY BOX PITY</font></h2>"
+                    + "If you hit 4 low-tier drops in a row, the 5th box guarantees Epic or higher."
+                    + "</div>"
                     + "</body></html>";
 
             JTextPane descPane = new JTextPane();
@@ -812,13 +892,9 @@ public class Vanguards extends JFrame {
         }
 
         private void consumePotion(String type) {
-            if(type.equals("Minor")) { state.player.heal(150);
-                state.player.healPots--; log.append("[COMBAT] Healed 150 HP\n"); dmgNums.add(new DamageNumber(150, 280, 280, Color.GREEN)); endPlayerTurn();
-            }
-            if(type.equals("Greater")) { state.player.heal(350); state.player.greaterPots--; log.append("[COMBAT] Healed 350 HP\n");
-                dmgNums.add(new DamageNumber(350, 280, 280, Color.GREEN)); endPlayerTurn(); }
-            if(type.equals("Buff")) { state.player.activeBuffTurns += 3;
-                state.player.dmgBuffs--; log.append("[COMBAT] DMG Buff applied for 3 turns!\n"); endPlayerTurn(); }
+            if(type.equals("Minor")) { state.player.heal(150); state.player.healPots--; log.append("[COMBAT] Healed 150 HP\n"); dmgNums.add(new DamageNumber(150, 280, 280, Color.GREEN)); endPlayerTurn(); }
+            if(type.equals("Greater")) { state.player.heal(350); state.player.greaterPots--; log.append("[COMBAT] Healed 350 HP\n"); dmgNums.add(new DamageNumber(350, 280, 280, Color.GREEN)); endPlayerTurn(); }
+            if(type.equals("Buff")) { state.player.activeBuffTurns += 3; state.player.dmgBuffs--; log.append("[COMBAT] DMG Buff applied for 3 turns!\n"); endPlayerTurn(); }
             if(currentMenuKey.equals("MAIN")) setMenu("MAIN");
         }
 
@@ -855,8 +931,8 @@ public class Vanguards extends JFrame {
             p.setOpaque(false);
             JPanel grid = new JPanel(new GridLayout(2, 4, 15, 15));
             grid.setBorder(new EmptyBorder(20, 30, 10, 30)); grid.setOpaque(false);
-
             String[] btns = {"ATTACKS", "DEFEND (+Shield)", "CAMP (10G)", "INVENTORY", "STATS", "FLEE (" + state.player.fleePenalty + "G)"};
+
             for(String s : btns) {
                 StylizedButton b = new StylizedButton(s);
                 if (s.startsWith("CAMP")) {
@@ -955,6 +1031,41 @@ public class Vanguards extends JFrame {
                 if(player.level >= 3) moves.add("Wind Slash (35 EN)");
                 if(player.level >= 5) moves.add("Dragon Strike (40 EN) [BURN]");
             }
+            else if(player.cls == ClassType.BARD) {
+                moves.add("Dissonant Chord (15 EN)");
+                if(player.level >= 3) moves.add("Inspiring Anthem (30 EN) [HEAL]");
+                if(player.level >= 5) moves.add("Crescendo (40 EN) [WEAK]");
+            }
+            else if(player.cls == ClassType.DRUID) {
+                moves.add("Vine Whip (15 EN)");
+                if(player.level >= 3) moves.add("Barkskin (30 EN) [THORNS]");
+                if(player.level >= 5) moves.add("Solar Beam (40 EN) [BURN]");
+            }
+            else if(player.cls == ClassType.NECROMANCER) {
+                moves.add("Life Drain (15 EN) [HEAL]");
+                if(player.level >= 3) moves.add("Bone Spear (30 EN)");
+                if(player.level >= 5) moves.add("Corpse Explosion (40 EN) [POISON]");
+            }
+            else if(player.cls == ClassType.ALCHEMIST) {
+                moves.add("Acid Flask (15 EN) [POISON]");
+                if(player.level >= 3) moves.add("Healing Draught (30 EN) [HEAL]");
+                if(player.level >= 5) moves.add("Explosive Mixture (40 EN) [BURN]");
+            }
+
+            String ultName = "Ultimate Attack";
+            if(player.cls == ClassType.KNIGHT) ultName = "Grand Aegis Strike";
+            else if(player.cls == ClassType.SORCERER) ultName = "Meteor Swarm";
+            else if(player.cls == ClassType.OPERATOR) ultName = "Orbital Strike";
+            else if(player.cls == ClassType.RANGER) ultName = "Thousand Arrows";
+            else if(player.cls == ClassType.PALADIN) ultName = "Heaven's Wrath";
+            else if(player.cls == ClassType.RONIN) ultName = "Oblivion Slash";
+            else if(player.cls == ClassType.BARD) ultName = "Symphony of Destruction";
+            else if(player.cls == ClassType.DRUID) ultName = "Nature's Fury";
+            else if(player.cls == ClassType.NECROMANCER) ultName = "Army of the Dead";
+            else if(player.cls == ClassType.ALCHEMIST) ultName = "Philosopher's Detonation";
+
+            moves.add("[ULTIMATE] " + ultName + " (100 EN)");
+
             return moves;
         }
 
@@ -971,11 +1082,16 @@ public class Vanguards extends JFrame {
                 for(String m : moves) {
                     StylizedButton b = new StylizedButton("[" + idx + "] " + m);
                     b.setPreferredSize(new Dimension(240, 50));
-                    int cost = m.contains("(15 EN)") ? 15 : m.contains("(20 EN)") ? 20 : m.contains("(30 EN)") ?
-                            30 : m.contains("(35 EN)") ? 35 : m.contains("(40 EN)") ? 40 : 0;
-                    if(player.energy < cost) b.setForeground(Color.DARK_GRAY);
+
+                    boolean isUlt = m.contains("[ULTIMATE]");
+                    int cost = isUlt ? 100 : (m.contains("(15 EN)") ? 15 : m.contains("(20 EN)") ? 20 : m.contains("(30 EN)") ? 30 : m.contains("(35 EN)") ? 35 : m.contains("(40 EN)") ? 40 : 0);
+
+                    if(player.energy < cost || (isUlt && player.ultStacks < 12)) {
+                        b.setForeground(Color.DARK_GRAY);
+                    }
+
                     int expectedDamage = calculateBaseDamage(m, player);
-                    b.setToolTipText("Expected Base Damage: " + expectedDamage);
+                    b.setToolTipText(isUlt ? "Expected Base Damage: " + expectedDamage + " (Requires 12 Stacks & 100 EN)" : "Expected Base Damage: " + expectedDamage);
 
                     b.addActionListener(e -> { if(!inputLocked) executeAttack(m); }); content.add(b);
                     idx++;
@@ -1171,10 +1287,10 @@ public class Vanguards extends JFrame {
             n.setFont(FONT_SANSSERIF_BOLD_12);
             n.setBorder(new EmptyBorder(5, 5, 0, 5));
             n.setToolTipText("<html>" + eq.getStatsString() + "<br>" + (eq.passive!=null ? "<b>" + eq.passive + "</b>" : "") + "</html>");
-
             JLabel s = new JLabel("<html>"+eq.getStatsString()+"<br>"+(eq.passive!=null?eq.passive:"")+"</html>");
             s.setForeground(new Color(170, 170, 170)); // Darker label color than white
-            s.setFont(FONT_SANSSERIF_PLAIN_10); s.setBorder(new EmptyBorder(5, 5, 5, 5));
+            s.setFont(FONT_SANSSERIF_PLAIN_10);
+            s.setBorder(new EmptyBorder(5, 5, 5, 5));
 
             JPanel bp = new JPanel(new FlowLayout(FlowLayout.RIGHT, 2, 2));
             bp.setOpaque(false);
@@ -1183,18 +1299,15 @@ public class Vanguards extends JFrame {
                 if(isEq) {
                     if(eq instanceof Relic) p.equippedRelics.remove(eq); else if(eq instanceof Weapon) p.equippedWeapons.remove(eq); else if(eq instanceof Armor) p.equippedArmors.remove(eq);
                 } else {
-                    if(eq instanceof Relic)
-                    { if(p.equippedRelics.size() < 10) p.equippedRelics.add((Relic)eq); else log.append("Relics full (10/10)!\n"); }
+                    if(eq instanceof Relic) { if(p.equippedRelics.size() < 10) p.equippedRelics.add((Relic)eq); else log.append("Relics full (10/10)!\n"); }
                     else if(eq instanceof Weapon) { if(p.equippedWeapons.size() < 2) p.equippedWeapons.add((Weapon)eq); else log.append("Weapons full (2/2)!\n"); }
                     else if(eq instanceof Armor) { if(p.equippedArmors.size() < 4) p.equippedArmors.add((Armor)eq); else log.append("Armor full (4/4)!\n"); }
                 }
                 setMenu("EQUIPMENT_DASH");
             });
-
             JButton sb = new JButton("SELL(" + eq.rarity.sellValue + ")"); sb.setFont(FONT_SANSSERIF_PLAIN_10); if(isEq) sb.setEnabled(false);
             sb.addActionListener(e -> { p.inventory.remove(eq); p.gold += eq.rarity.sellValue; log.append("[SYS] Sold " + eq.name + "\n"); setMenu("EQUIPMENT_DASH"); buildSideShop(); });
             bp.add(eb); bp.add(sb);
-
             c.add(n, BorderLayout.NORTH); c.add(s, BorderLayout.CENTER); c.add(bp, BorderLayout.SOUTH); return c;
         }
 
@@ -1245,10 +1358,8 @@ public class Vanguards extends JFrame {
                                 autoEquipIfPossible(dropped);
                                 log.append("[GACHA] Box contained: " + dropped.name + " (" + dropped.rarity.name + ")!\n");
                             }
-                            else if(it.name.contains("Elixir")) { p.atk += 2; p.def += 2;
-                                log.append("[SYS] Gained +2 Permanent ATK/DEF!\n"); }
-                            else if(it.name.contains("Familiar Crystal")) { p.hasPet = true;
-                                log.append("[SYS] Summoned a Familiar!\n"); }
+                            else if(it.name.contains("Elixir")) { p.atk += 2; p.def += 2; log.append("[SYS] Gained +2 Permanent ATK/DEF!\n"); }
+                            else if(it.name.contains("Familiar Crystal")) { p.hasPet = true; log.append("[SYS] Summoned a Familiar!\n"); }
                             else if(it.name.contains("Forge Weapon")) {
                                 if(!p.equippedWeapons.isEmpty()) {
                                     p.equippedWeapons.get(0).atk += 15;
@@ -1278,19 +1389,28 @@ public class Vanguards extends JFrame {
             sideShopPanel.add(shopScroll, BorderLayout.CENTER); sideShopPanel.revalidate(); sideShopPanel.repaint();
         }
 
-        private JLabel createStatLabel(String title, String val, Color c) { JLabel l = new JLabel("<html><b>"+title+"</b> <font color='"+toHex(c)+"'>"+val+"</font></html>");
-            l.setFont(new Font("SansSerif", Font.PLAIN, 18)); return l; }
+        private JLabel createStatLabel(String title, String val, Color c) { JLabel l = new JLabel("<html><b>"+title+"</b> <font color='"+toHex(c)+"'>"+val+"</font></html>"); l.setFont(new Font("SansSerif", Font.PLAIN, 18)); return l; }
         private String toHex(Color c) { return String.format("#%02x%02x%02x", c.getRed(), c.getGreen(), c.getBlue()); }
 
         private void executeAttack(String move) {
             Player p = state.player;
-            int cost = move.contains("(15 EN)") ? 15 : move.contains("(20 EN)") ? 20 : move.contains("(30 EN)") ?
-                    30 : move.contains("(35 EN)") ? 35 : move.contains("(40 EN)") ? 40 : 0;
+            boolean isUlt = move.contains("[ULTIMATE]");
+            int cost = isUlt ? 100 : (move.contains("(15 EN)") ? 15 : move.contains("(20 EN)") ? 20 : move.contains("(30 EN)") ? 30 : move.contains("(35 EN)") ? 35 : move.contains("(40 EN)") ? 40 : 0);
+
+            if(isUlt && p.ultStacks < 12) { log.append("[SYS] Requires 12 Ultimate Stacks!\n"); return; }
             if(p.energy < cost) { log.append("[SYS] Not enough Energy!\n"); return; }
+
             inputLocked = true;
             setMenu("EMPTY"); p.energy -= cost; p.combo++; p.currentAnim = "WINDUP"; p.animTick = 0;
 
             p.onAnimComplete = () -> {
+                if (isUlt) {
+                    p.ultStacks -= 12;
+                    log.append("[COMBAT] " + p.name + " unleashed their ULTIMATE!\n");
+                } else {
+                    p.ultStacks = Math.min(12, p.ultStacks + 1);
+                }
+
                 boolean isCrit = Math.random() < ((p.getTotalLuk() + p.crt) * 0.015);
                 double comboMult = 1.0 + (p.combo * 0.05);
                 int baseDmg = calculateBaseDamage(move, p);
@@ -1308,13 +1428,17 @@ public class Vanguards extends JFrame {
                 if(enemy.elite == EliteModifier.ARMORED) reducedDmg -= enemy.def;
                 if(reducedDmg < 1) reducedDmg = 1;
 
-                enemy.takeDamage(reducedDmg); screenShake = isCrit ? 15 : 5;
-                if(isCrit) { for(int i=0; i<15; i++) particles.add(new Particle(Color.YELLOW, true, 700, 250)); }
-                else { for(int i=0; i<5; i++) particles.add(new Particle(Color.WHITE, true, 700, 250)); }
+                enemy.takeDamage(reducedDmg); screenShake = isCrit ? 15 : (isUlt ? 30 : 5);
+
+                // Triggers Custom Impact Effect
+                spawnImpactEffect(move, enemy.animX + 700, enemy.animY + 250);
 
                 Color dmgColor = isCrit ? Color.YELLOW : (p.combo > 3 ? Color.ORANGE : Color.WHITE);
-                dmgNums.add(new DamageNumber(reducedDmg, 780, 280, dmgColor, reducedDmg + (p.combo > 3 ? "!" : "")));
-                log.append("[COMBAT] " + move.split(" \\(") + (isCrit ? " CRIT for " : " hits for ") + reducedDmg + " dmg (Combo x" + p.combo + ")\n");
+                if(isUlt) dmgColor = ULT_MAGENTA;
+
+                dmgNums.add(new DamageNumber(reducedDmg, 780, 280, dmgColor, reducedDmg + (p.combo > 3 || isUlt ? "!" : "")));
+                String moveNameDisplay = move.contains("[ULTIMATE]") ? move.substring(11, move.indexOf("(")-1) : move.split(" \\(") [0];
+                log.append("[COMBAT] " + moveNameDisplay + (isCrit ? " CRIT for " : " hits for ") + reducedDmg + " dmg (Combo x" + p.combo + ")\n");
 
                 if(move.contains("[BURN]")) { enemy.burnTurns += 3; log.append("[COMBAT] Enemy is BURNING!\n"); }
                 if(move.contains("[POISON]")) { enemy.poisonTurns += 4; log.append("[COMBAT] Enemy is POISONED!\n"); }
@@ -1334,15 +1458,55 @@ public class Vanguards extends JFrame {
                     log.append("[COMBAT] Lifesteal restored " + heal + " HP!\n");
                 }
                 for(Weapon w : p.equippedWeapons) {
-                    if("Soul Syphon".equals(w.passive)) { p.energy = Math.min(p.maxEnergy, p.energy + 15);
-                        dmgNums.add(new DamageNumber(15, 280, 260, ENERGY_BLUE, "+15 EN")); break; }
+                    if("Soul Syphon".equals(w.passive)) { p.energy = Math.min(p.maxEnergy, p.energy + 15); dmgNums.add(new DamageNumber(15, 280, 260, ENERGY_BLUE, "+15 EN")); break; }
                 }
 
-                if(enemy.hp <= 0) { Timer t = new Timer(500, ev -> endEncounter());
-                    t.setRepeats(false); t.start(); }
-                else { Timer t = new Timer(500, ev -> endPlayerTurn());
-                    t.setRepeats(false); t.start(); }
+                if(enemy.hp <= 0) { Timer t = new Timer(500, ev -> endEncounter()); t.setRepeats(false); t.start(); }
+                else { Timer t = new Timer(500, ev -> endPlayerTurn()); t.setRepeats(false); t.start(); }
             };
+        }
+
+        private void spawnImpactEffect(String move, double x, double y) {
+            Random r = new Random();
+            if(move.contains("[ULTIMATE]")) {
+                for(int i=0; i<100; i++) particles.add(new Particle(state.player.cls.color, true, x, y, (r.nextDouble()-0.5)*18, (r.nextDouble()-0.5)*18, 40+r.nextInt(30), 4+r.nextDouble()*6));
+                return;
+            }
+            if(move.contains("Fireball") || move.contains("Solar Beam") || move.contains("Smite") || move.contains("Explosive")) {
+                for(int i=0; i<30; i++) particles.add(new Particle(Color.ORANGE, true, x, y, (r.nextDouble()-0.5)*8, (r.nextDouble()-0.5)*8 - 2, 30+r.nextInt(20), 3+r.nextDouble()*5));
+            } else if(move.contains("Shield Bash") || move.contains("Aegis") || move.contains("Phalanx")) {
+                for(int i=0; i<25; i++) particles.add(new Particle(Color.LIGHT_GRAY, true, x, y, (r.nextDouble()-0.5)*10, (r.nextDouble()-0.5)*3, 20+r.nextInt(20), 4+r.nextDouble()*4));
+            } else if(move.contains("Toxic") || move.contains("Acid") || move.contains("Poison")) {
+                for(int i=0; i<30; i++) particles.add(new Particle(Color.GREEN, true, x, y, (r.nextDouble()-0.5)*5, r.nextDouble()*5, 40+r.nextInt(20), 3+r.nextDouble()*4));
+            } else if(move.contains("Piercing") || move.contains("Snipe") || move.contains("Arrow") || move.contains("Volley")) {
+                for(int i=0; i<20; i++) particles.add(new Particle(Color.CYAN, true, x, y, -5 - r.nextDouble()*10, (r.nextDouble()-0.5)*2, 20+r.nextInt(15), 2+r.nextDouble()*3));
+            } else if(move.contains("Holy") || move.contains("Divine") || move.contains("Healing")) {
+                for(int i=0; i<35; i++) particles.add(new Particle(Color.YELLOW, true, x, y, (r.nextDouble()-0.5)*6, -3 - r.nextDouble()*6, 30+r.nextInt(20), 3+r.nextDouble()*4));
+                if(move.contains("[HEAL]")) for(int i=0; i<15; i++) particles.add(new Particle(Color.GREEN, true, x, y, (r.nextDouble()-0.5)*4, -2 - r.nextDouble()*4, 25+r.nextInt(15), 3+r.nextDouble()*3));
+            } else if(move.contains("Void") || move.contains("Curse") || move.contains("Drain") || move.contains("Necro")) {
+                for(int i=0; i<30; i++) particles.add(new Particle(new Color(100, 0, 150), true, x, y, (r.nextDouble()-0.5)*8, (r.nextDouble()-0.5)*8, 40+r.nextInt(20), 3+r.nextDouble()*5));
+            } else if(move.contains("Wind") || move.contains("Slash") || move.contains("Strike") || move.contains("Execution") || move.contains("Backstab")) {
+                for(int i=0; i<25; i++) particles.add(new Particle(Color.WHITE, true, x, y, (r.nextDouble()-0.5)*12, (r.nextDouble()-0.5)*12, 15+r.nextInt(15), 2+r.nextDouble()*3));
+            } else if(move.contains("Chord") || move.contains("Anthem") || move.contains("Crescendo")) {
+                for(int i=0; i<25; i++) particles.add(new Particle(Color.MAGENTA, true, x, y, (r.nextDouble()-0.5)*7, -2 - r.nextDouble()*5, 35+r.nextInt(20), 3+r.nextDouble()*4));
+            } else if(move.contains("Vine") || move.contains("Barkskin")) {
+                for(int i=0; i<25; i++) particles.add(new Particle(new Color(34, 139, 34), true, x, y, (r.nextDouble()-0.5)*6, (r.nextDouble()-0.5)*6, 30+r.nextInt(20), 3+r.nextDouble()*4));
+            } else if(move.contains("Bone") || move.contains("Corpse")) {
+                for(int i=0; i<30; i++) particles.add(new Particle(Color.GRAY, true, x, y, (r.nextDouble()-0.5)*8, (r.nextDouble()-0.5)*8 - 3, 30+r.nextInt(20), 3+r.nextDouble()*4));
+            } else {
+                for(int i=0; i<20; i++) particles.add(new Particle(Color.WHITE, true, x, y, (r.nextDouble()-0.5)*5, (r.nextDouble()-0.5)*5, 20+r.nextInt(15), 2+r.nextDouble()*3));
+            }
+        }
+
+        private void spawnDotEffect(String type, double x, double y) {
+            Random r = new Random();
+            if(type.equals("BURN")) {
+                for(int i=0; i<15; i++) particles.add(new Particle(Color.ORANGE, true, x, y, (r.nextDouble()-0.5)*4, -2 - r.nextDouble()*3, 20+r.nextInt(15), 3+r.nextDouble()*3));
+            } else if(type.equals("POISON")) {
+                for(int i=0; i<15; i++) particles.add(new Particle(Color.GREEN, true, x, y, (r.nextDouble()-0.5)*3, -1 - r.nextDouble()*2, 25+r.nextInt(15), 3+r.nextDouble()*4));
+            } else if(type.equals("BLEED")) {
+                for(int i=0; i<15; i++) particles.add(new Particle(Color.RED, true, x, y, (r.nextDouble()-0.5)*2, 1 + r.nextDouble()*4, 20+r.nextInt(15), 3+r.nextDouble()*3));
+            }
         }
 
         private int calculateBaseDamage(String m, Player p) {
@@ -1351,6 +1515,24 @@ public class Vanguards extends JFrame {
             int tSpd = p.getTotalSpd() + p.getTotalDex();
             int tLuk = p.getTotalLuk() + p.crt;
             int tInt = p.getTotalInt();
+            int tCha = p.getTotalCha();
+            int tWis = p.getTotalWis();
+            int tCon = p.getTotalCon();
+
+            if(m.contains("[ULTIMATE]")) {
+                double scale = 0;
+                if(p.cls == ClassType.KNIGHT) scale = p.getTotalDef() + p.getTotalMaxHp() * 0.1;
+                else if(p.cls == ClassType.SORCERER) scale = p.getTotalInt() + p.getTotalLuk();
+                else if(p.cls == ClassType.OPERATOR) scale = p.getTotalDex() + p.acc * 0.5;
+                else if(p.cls == ClassType.RANGER) scale = p.agi + p.getTotalLuk();
+                else if(p.cls == ClassType.PALADIN) scale = p.getTotalCon() + p.getTotalCha();
+                else if(p.cls == ClassType.RONIN) scale = p.getTotalDex() + p.crt;
+                else if(p.cls == ClassType.BARD) scale = p.getTotalCha() + p.getTotalLuk();
+                else if(p.cls == ClassType.DRUID) scale = p.getTotalWis() + p.getTotalCon();
+                else if(p.cls == ClassType.NECROMANCER) scale = p.getTotalInt() + p.getTotalCon();
+                else if(p.cls == ClassType.ALCHEMIST) scale = p.getTotalInt() + p.getTotalLuk();
+                return (int)(scale * 5.0);
+            }
 
             if(m.contains("Basic") || m.contains("Quick Draw")) return tAtk;
             if(m.contains("Shield Bash")) return (int)(tDef * 1.8);
@@ -1370,6 +1552,23 @@ public class Vanguards extends JFrame {
             if(m.contains("Smite")) return (int)(tAtk * 2.0 + tDef * 1.5);
             if(m.contains("Wind Slash")) return (int)(tAtk * 1.5 + tSpd * 2.0);
             if(m.contains("Dragon Strike")) return (int)(tAtk * 2.5 + tSpd);
+
+            if(m.contains("Dissonant Chord")) return (int)(tCha * 1.5 + tLuk);
+            if(m.contains("Inspiring Anthem")) return (int)(tCha * 2.0);
+            if(m.contains("Crescendo")) return (int)(tCha * 2.5 + tLuk * 1.5);
+
+            if(m.contains("Vine Whip")) return (int)(tWis * 1.5 + tAtk);
+            if(m.contains("Barkskin")) return (int)(tWis * 1.5 + tDef);
+            if(m.contains("Solar Beam")) return (int)(tWis * 2.5 + tCon);
+
+            if(m.contains("Life Drain")) return (int)(tInt * 1.5 + tCon);
+            if(m.contains("Bone Spear")) return (int)(tInt * 2.0 + tAtk);
+            if(m.contains("Corpse Explosion")) return (int)(tInt * 2.5 + tCon * 1.5);
+
+            if(m.contains("Acid Flask")) return (int)(tInt * 1.5 + tSpd);
+            if(m.contains("Healing Draught")) return (int)(tInt * 1.5 + tLuk);
+            if(m.contains("Explosive Mixture")) return (int)(tInt * 2.5 + tLuk * 1.5);
+
             return tAtk;
         }
 
@@ -1396,6 +1595,7 @@ public class Vanguards extends JFrame {
             Player p = state.player;
             if(enemy.isBoss) { log.append("[SYS] Cannot flee from an Overlord!\n"); return; }
             if(p.gold < p.fleePenalty) { log.append("[SYS] Not enough gold to bribe escape!\n"); return; }
+
             p.combo = 0; p.winStreak = 0;
             p.gold -= p.fleePenalty; dmgNums.add(new DamageNumber(p.fleePenalty, 280, 250, Color.MAGENTA, "-" + p.fleePenalty + "G"));
             log.append("[SYS] Fled! Lost " + p.fleePenalty + " Gold. Win Streak Reset.\n");
@@ -1410,6 +1610,7 @@ public class Vanguards extends JFrame {
                 if(p.activeBuffTurns == 0) log.append("[COMBAT] Damage Buff expired.\n"); }
             for(Relic r : p.equippedRelics) { if("Regeneration".equals(r.passive)) p.heal((int)(p.getTotalMaxHp() * 0.05));
                 if("Titan Shield".equals(r.passive)) p.shield += 15; }
+
             if(enemy != null && enemy.hp > 0) {
                 if(p.hasPet) {
                     int petDmg = 15 + (p.level * 5);
@@ -1433,6 +1634,7 @@ public class Vanguards extends JFrame {
             Player p = state.player;
             log.append("[SYS] ENEMY VANQUISHED\n");
             p.winStreak++; p.fleePenalty = 10; state.bountyKills++; if (enemy.isBoss) rerollCost = 50;
+
             if(enemy.hp < -(enemy.maxHp * 0.3)) { log.append("[SYS] OVERKILL! Bonus XP Awarded.\n"); p.xp += 50 + (enemy.level * 5); }
 
             int drops = enemy.elite == EliteModifier.CORRUPTED ? 2 : 1;
@@ -1459,6 +1661,7 @@ public class Vanguards extends JFrame {
             double goldMult = 1.0 + Math.min(1.5, p.winStreak * 0.05);
             int goldGain = (int)((enemy.isBoss ? (60 + enemy.level*20) : (15 + enemy.level*5)) * goldMult); p.gold += goldGain;
             dmgNums.add(new DamageNumber(goldGain, 650, 280, Color.YELLOW, "+" + goldGain + "G"));
+
             if(state.bountyKills >= state.bountyTarget) {
                 p.gold += state.bountyReward;
                 log.append("[BOUNTY] Completed! Earned " + state.bountyReward + "G\n");
@@ -1469,6 +1672,7 @@ public class Vanguards extends JFrame {
 
             p.xp += enemy.isBoss ? 400 : 100; p.shield = 0; state.encounters++; encountersUntilRefresh--;
             if(encountersUntilRefresh <= 0) { refreshShop(); encountersUntilRefresh = 3; } else buildSideShop();
+
             Timer t = new Timer(1500, e -> {
                 if (state.encounters % 5 == 0) {
                     gameLoop.stop();
@@ -1490,9 +1694,18 @@ public class Vanguards extends JFrame {
         private void enemyTurn() {
             Player p = state.player;
             int dotDmg = 0;
-            if(enemy.burnTurns > 0) { dotDmg += 15 + enemy.level * 2; enemy.burnTurns--; }
-            if(enemy.bleedTurns > 0) { dotDmg += (int)(enemy.maxHp * 0.08); enemy.bleedTurns--; }
-            if(enemy.poisonTurns > 0) { dotDmg += (int)(enemy.maxHp * 0.05); enemy.poisonTurns--; }
+            if(enemy.burnTurns > 0) {
+                dotDmg += 15 + enemy.level * 2; enemy.burnTurns--;
+                spawnDotEffect("BURN", enemy.animX + 700, enemy.animY + 250);
+            }
+            if(enemy.bleedTurns > 0) {
+                dotDmg += (int)(enemy.maxHp * 0.08); enemy.bleedTurns--;
+                spawnDotEffect("BLEED", enemy.animX + 700, enemy.animY + 250);
+            }
+            if(enemy.poisonTurns > 0) {
+                dotDmg += (int)(enemy.maxHp * 0.05); enemy.poisonTurns--;
+                spawnDotEffect("POISON", enemy.animX + 700, enemy.animY + 250);
+            }
 
             if(dotDmg > 0) {
                 enemy.takeDamage(dotDmg);
@@ -1528,12 +1741,15 @@ public class Vanguards extends JFrame {
                     double bossEnrageMult = (enemy.isBoss && enemy.turnCounter > 8) ? 1.5 : 1.0;
                     double weaknessMult = (enemy.weakTurns > 0) ? 0.6 : 1.0;
                     int ed = (int)((enemy.atk * bossEnrageMult * weaknessMult) - (p.getTotalDef())/2);
+
                     if(enemy.isBoss && enemy.turnCounter % 4 == 0) { ed *= 2.5; log.append("[COMBAT] OVERLORD USES DEVASTATING STRIKE!\n"); screenShake = 20; }
                     ed = Math.max(5, ed);
+
                     p.takeDamage(ed); dmgNums.add(new DamageNumber(ed, 280, 280, Color.RED)); p.combo = 0;
 
                     if(p.thornsTurns > 0) { int refDmg = ed / 2; enemy.takeDamage(refDmg);
-                        log.append("[COMBAT] Thorns reflected " + refDmg + " damage!\n"); dmgNums.add(new DamageNumber(refDmg, 780, 280, Color.PINK)); }
+                        log.append("[COMBAT] Thorns reflected " + refDmg + " damage!\n"); dmgNums.add(new DamageNumber(refDmg, 780, 280, Color.PINK));
+                    }
                     if(enemy.elite == EliteModifier.VAMPIRIC) { enemy.heal(ed/2); }
                     if(enemy.elite == EliteModifier.TOXIC && Math.random() < 0.3) { log.append("[COMBAT] Poisoned by Toxic enemy!\n"); p.takeDamage(10); }
                 }
@@ -1571,30 +1787,32 @@ public class Vanguards extends JFrame {
             else {
                 rarity = roll < 0.01 ? Rarity.GODLY : roll < 0.06 ? Rarity.MYTHIC : roll < 0.22 ? Rarity.LEGENDARY : roll < 0.55 ?
                         Rarity.EPIC : roll < 0.85 ? Rarity.RARE : Rarity.COMMON;
-                if(fromMysteryBox) { if(rarity == Rarity.COMMON || rarity == Rarity.RARE) mysteryBoxPity++;
-                else mysteryBoxPity = 0; }
+                if(fromMysteryBox) { if(rarity == Rarity.COMMON || rarity == Rarity.RARE) mysteryBoxPity++; else mysteryBoxPity = 0; }
             }
 
             int b = 2 + (state.encounters / 3) + rnd.nextInt(5);
             int m = (int)rarity.multiplier; int typeRoll = rnd.nextInt(3); int calcPrice = b * m * 15;
 
             // Distribute new stats evenly
-            int st = (b * m) / 2; int co = (b * m) / 2; int de = (b * m) / 2;
-            int in = (b * m) / 2; int wi = (b * m) / 2; int ch = (b * m) / 2;
+            int st = (b * m) / 2;
+            int co = (b * m) / 2; int de = (b * m) / 2;
+            int in = (b * m) / 2; int wi = (b * m) / 2;
+            int ch = (b * m) / 2;
 
             if(typeRoll == 0) {
-                String pass = rarity == Rarity.GODLY ?
-                        GODLY_PASSIVES[rnd.nextInt(GODLY_PASSIVES.length)] : (rarity == Rarity.MYTHIC ? MYTHIC_PASSIVES[rnd.nextInt(MYTHIC_PASSIVES.length)] : null);
+                String pass = rarity == Rarity.GODLY ? GODLY_PASSIVES[rnd.nextInt(GODLY_PASSIVES.length)] : (rarity == Rarity.MYTHIC ? MYTHIC_PASSIVES[rnd.nextInt(MYTHIC_PASSIVES.length)] : null);
                 Relic r = new Relic(rarity.name + " " + RELIC_NAMES[rnd.nextInt(RELIC_NAMES.length)], calcPrice, b*m*5, b*m, b*m, (b/2)*m, (b/2)*m, st, co, de, in, wi, ch, rarity);
                 r.passive = pass; return r;
             } else if(typeRoll == 1) {
                 String name = WEAPON_PREFIXES[rnd.nextInt(WEAPON_PREFIXES.length)] + " " + WEAPON_NOUNS[rnd.nextInt(WEAPON_NOUNS.length)];
                 String pass = rarity.multiplier >= 3.0 ? WEAPON_PASSIVES[rnd.nextInt(WEAPON_PASSIVES.length)] : null;
-                Weapon w = new Weapon(name, calcPrice, b*m*2, (b*2)*m, (b/3)*m, b*m, b*m, st, co, de, in, wi, ch, rarity); w.passive = pass; return w;
+                Weapon w = new Weapon(name, calcPrice, b*m*2, (b*2)*m, (b/3)*m, b*m, b*m, st, co, de, in, wi, ch, rarity);
+                w.passive = pass; return w;
             } else {
                 String name = ARMOR_PREFIXES[rnd.nextInt(ARMOR_PREFIXES.length)] + " " + ARMOR_NOUNS[rnd.nextInt(ARMOR_NOUNS.length)];
                 String pass = rarity.multiplier >= 5.5 ? "Knight's Resolve" : null;
-                Armor a = new Armor(name, calcPrice, b*m*10, (b/3)*m, (b*2)*m, (b/2)*m, b*m, st, co, de, in, wi, ch, rarity); a.passive = pass; return a;
+                Armor a = new Armor(name, calcPrice, b*m*10, (b/3)*m, (b*2)*m, (b/2)*m, b*m, st, co, de, in, wi, ch, rarity);
+                a.passive = pass; return a;
             }
         }
 
@@ -1633,10 +1851,13 @@ public class Vanguards extends JFrame {
 
             double hpPct = state.player.displayHp / state.player.getTotalMaxHp(); Color hpCol = hpPct > 0.5 ?
                     new Color(40, 200, 80) : hpPct > 0.2 ? Color.YELLOW : Color.RED;
-            drawBar(g, 100, 380, "HP", state.player.displayHp, state.player.getTotalMaxHp(), hpCol, 300, 15);
-            drawBar(g, 100, 405, "SHIELD", state.player.shield, Math.max(state.player.getTotalMaxHp(), state.player.shield), SHIELD_CYAN, 300, 15);
-            drawBar(g, 100, 430, "XP", state.player.displayXp, state.player.getExpRequirement(), XP_ORANGE, 300, 15);
-            drawBar(g, 100, 455, "ENERGY", state.player.displayEnergy, state.player.maxEnergy, ENERGY_BLUE, 300, 15);
+
+            drawBar(g, 100, 375, "HP", state.player.displayHp, state.player.getTotalMaxHp(), hpCol, 300, 15);
+            drawBar(g, 100, 395, "SHIELD", state.player.shield, Math.max(state.player.getTotalMaxHp(), state.player.shield), SHIELD_CYAN, 300, 15);
+            drawBar(g, 100, 415, "XP", state.player.displayXp, state.player.getExpRequirement(), XP_ORANGE, 300, 15);
+            drawBar(g, 100, 435, "ENERGY", state.player.displayEnergy, state.player.maxEnergy, ENERGY_BLUE, 300, 15);
+            drawBar(g, 100, 455, "ULTIMATE", state.player.ultStacks, 12, ULT_MAGENTA, 300, 15);
+
             if(enemy != null && enemy.hp > 0 && !enemy.isBoss) drawBar(g, 550, 400, enemy.name, enemy.displayHp, enemy.maxHp, enemy.color, 300, 15);
             for(DamageNumber dn : dmgNums) dn.draw(g);
             g.setTransform(original);
@@ -1720,6 +1941,7 @@ public class Vanguards extends JFrame {
             g2.drawString("VANGUARDS", titleX-8, titleY+8);
             g2.setColor(ACCENT_COL);
             g2.drawString("VANGUARDS", titleX, titleY);
+
             g2.setClip(new java.awt.geom.Rectangle2D.Double(titleX, titleY - fm.getAscent(), titleWidth, fm.getHeight()));
 
             int shineX = titleX - 200 + (tick * 15) % (titleWidth + 400);
@@ -1790,13 +2012,22 @@ public class Vanguards extends JFrame {
             setBackground(new Color(15, 15, 20));
             setLayout(new GridBagLayout());
 
-            JPanel grid = new JPanel(new GridLayout(2, 3, 40, 40));
+            JPanel grid = new JPanel(new GridLayout(2, 5, 15, 15));
             grid.setOpaque(false);
+
             for(ClassType ct : ClassType.values()) {
-                ClassButton b = new ClassButton("<html><center><b><font size='5'>" + ct.title + "</font></b><br><br><font size='3' color='gray'>" + ct.scaleDesc + "</font></center></html>", ct);
-                b.setPreferredSize(new Dimension(220, 260));
+                ClassButton b = new ClassButton("<html><center><b><font size='4'>" + ct.title + "</font></b><br><br><font size='3' color='gray'>" + ct.scaleDesc + "</font></center></html>", ct);
+                b.setPreferredSize(new Dimension(180, 240));
                 b.addActionListener(e -> {
-                    state.player = new Player(ct); ACCENT_COL = ct.color;
+                    String pName = JOptionPane.showInputDialog(this, "Enter your Vanguard's name:", "Vanguard Registration", JOptionPane.PLAIN_MESSAGE);
+                    if (pName == null || pName.trim().isEmpty()) {
+                        pName = "Hero";
+                    }
+
+                    state.player = new Player(ct);
+                    state.player.name = pName;
+                    ACCENT_COL = ct.color;
+
                     introScreen.play(ct, () -> {
                         battlePanel.initSession();
                         cards.show(mainContainer, "BATTLE");
@@ -1823,17 +2054,35 @@ public class Vanguards extends JFrame {
             int cx = getWidth() / 2;
             int cy = 45;
             g2.setColor(classType.color);
+
             if(classType == ClassType.KNIGHT) { g2.fillRect(cx-15, cy-20, 30, 40); }
             else if(classType == ClassType.SORCERER) { g2.fillOval(cx-15, cy-15, 30, 30);
                 g2.fillOval(cx-5, cy-25, 10, 10); }
-            else if(classType == ClassType.OPERATOR) { g2.fillPolygon(new int[]{cx, cx+15, cx-15}, new int[]{cy+15, cy-15, cy-15}, 3);
-            }
+            else if(classType == ClassType.OPERATOR) { g2.fillPolygon(new int[]{cx, cx+15, cx-15}, new int[]{cy+15, cy-15, cy-15}, 3); }
             else if(classType == ClassType.RANGER) { g2.drawOval(cx-15, cy-15, 30, 30);
                 g2.drawLine(cx-15, cy+15, cx+15, cy-15); }
             else if(classType == ClassType.PALADIN) { g2.fillRect(cx-5, cy-25, 10, 40);
                 g2.fillRect(cx-15, cy-10, 30, 10); }
             else if(classType == ClassType.RONIN) { g2.drawOval(cx-20, cy-5, 40, 10);
                 g2.drawLine(cx-15, cy+5, cx+15, cy-20); }
+            else if(classType == ClassType.BARD) {
+                g2.drawArc(cx-10, cy-15, 15, 15, 180, 180);
+                g2.drawLine(cx-10, cy-7, cx-10, cy+10);
+                g2.fillOval(cx-15, cy+5, 10, 10);
+            }
+            else if(classType == ClassType.DRUID) {
+                g2.fillPolygon(new int[]{cx, cx+10, cx, cx-10}, new int[]{cy-20, cy, cy+20, cy}, 4);
+            }
+            else if(classType == ClassType.NECROMANCER) {
+                g2.fillOval(cx-10, cy-15, 20, 20);
+                g2.fillRect(cx-6, cy, 12, 10);
+                g2.setColor(new Color(15, 15, 20));
+                g2.fillOval(cx-6, cy-5, 5, 5); g2.fillOval(cx+1, cy-5, 5, 5);
+            }
+            else if(classType == ClassType.ALCHEMIST) {
+                g2.fillPolygon(new int[]{cx, cx+15, cx-15}, new int[]{cy-10, cy+15, cy+15}, 3);
+                g2.fillRect(cx-4, cy-20, 8, 10);
+            }
 
             g2.dispose();
         }
@@ -1868,7 +2117,7 @@ public class Vanguards extends JFrame {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            if(getForeground().equals(Rarity.GODLY.col)) {
+            if(getForeground().equals(Rarity.GODLY.col) || getForeground().equals(Color.CYAN)) {
                 g2.setStroke(BORDER_STROKE_THICK);
                 long time = System.currentTimeMillis();
                 int pulseRed = (int)((Math.sin(time * 0.005) + 1.0) * 127.5);
