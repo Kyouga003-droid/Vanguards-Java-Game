@@ -19,6 +19,7 @@ public class Vanguards extends JFrame {
     private static final Color SHIELD_CYAN = new Color(100, 255, 210);
     private static final Color ULT_MAGENTA = new Color(255, 50, 200);
     private static final Color SHADOW_COL = new Color(0, 0, 0, 180);
+
     private static final Font UI_FONT = new Font("SansSerif", Font.BOLD, 14);
     private static final Font TITLE_FONT = new Font("Serif", Font.BOLD, 120);
     private static final Font FONT_IMPACT_14 = new Font("Impact", Font.PLAIN, 14);
@@ -33,14 +34,17 @@ public class Vanguards extends JFrame {
     private static final Font FONT_ULT_CUTSCENE = new Font("Impact", Font.ITALIC, 60);
     private static final Font FONT_BOSS_WARNING = new Font("Impact", Font.ITALIC, 100);
     private static final Font FONT_INTRO = new Font("Serif", Font.BOLD, 80);
+
     private static final BasicStroke BORDER_STROKE_THICK = new BasicStroke(3);
     private static final BasicStroke BORDER_STROKE_THIN = new BasicStroke(1);
+
     private static Color ACCENT_COL = new Color(212, 175, 55);
 
     private static final Color[] TERRAIN_COLORS = {
             new Color(15, 15, 20), new Color(35, 15, 15), new Color(15, 30, 20),
             new Color(10, 20, 40), new Color(35, 25, 10), new Color(25, 10, 35), new Color(20, 30, 35)
     };
+
     private static final String[] WEAPON_PREFIXES = {"Flaming", "Freezing", "Venomous", "Divine", "Cursed", "Gilded", "Rusty", "Phantom", "Astral", "Savage", "Demonic", "Celestial", "Void", "Bloodthirst", "Ethereal"};
     private static final String[] WEAPON_NOUNS = {"Greatsword", "Staff", "Dagger", "Halberd", "Scythe", "Longbow", "Warhammer", "Katana", "Grimoire", "Whip"};
     private static final String[] ARMOR_PREFIXES = {"Sturdy", "Ethereal", "Spiked", "Heavy", "Lightweight", "Ancient", "Mythril", "Obsidian", "Silk", "Dragonbone", "Titanium", "Shadow", "Crystal"};
@@ -57,12 +61,15 @@ public class Vanguards extends JFrame {
     private DeathScreen deathScreen;
     private IntroScreen introScreen;
     private BossWarningScreen bossWarningScreen;
+
     private static BufferedImage cachedVignette;
     private static Map<Color, Color> cachedGlowColors = new HashMap<>();
     private static Map<Integer, Color> alphaColorCache = new HashMap<>();
+
     private List<Particle> particles = new ArrayList<>();
     private Queue<Particle> particlePool = new LinkedList<>();
     private List<Point> backgroundStars = new ArrayList<>();
+
     private int screenShake = 0;
     private int maxComboAchieved = 0;
     private int rerollCost = 50;
@@ -74,8 +81,10 @@ public class Vanguards extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
+
         for(int i = 0; i < 75; i++) particles.add(new Particle(Color.WHITE, false, 0, 0));
         for(int i = 0; i < 50; i++) backgroundStars.add(new Point((int)(Math.random()*1350), (int)(Math.random()*480)));
+
         state = new GameState();
         cards = new CardLayout();
         mainContainer = new JPanel(cards);
@@ -159,20 +168,22 @@ public class Vanguards extends JFrame {
     }
 
     enum ClassType {
-        KNIGHT("Knight", "Scales with: MAX HP & DEF", new Color(40, 70, 130), new Color(15, 25, 45)),
-        SORCERER("Sorcerer", "Scales with: INT & LUCK", new Color(100, 30, 150), new Color(30, 10, 45)),
-        OPERATOR("Operator", "Scales with: DEX & ACC", new Color(160, 20, 30), new Color(40, 10, 15)),
-        RANGER("Ranger", "Scales with: AGI & LUK", new Color(30, 120, 50), new Color(10, 30, 15)),
-        PALADIN("Paladin", "Scales with: CON & CHA", new Color(200, 150, 20), new Color(45, 35, 10)),
-        RONIN("Ronin", "Scales with: DEX & CRT", new Color(180, 50, 50), new Color(40, 15, 15)),
-        BARD("Bard", "Scales with: CHA & LUK", new Color(220, 100, 200), new Color(45, 10, 40)),
-        DRUID("Druid", "Scales with: WIS & CON", new Color(50, 180, 80), new Color(10, 40, 15)),
-        NECROMANCER("Necromancer", "Scales with: INT & CON", new Color(80, 20, 100), new Color(20, 5, 25)),
-        ALCHEMIST("Alchemist", "Scales with: INT & LUK", new Color(200, 150, 50), new Color(40, 30, 10));
+        KNIGHT("Knight", "Scales with: MAX HP & DEF", new Color(40, 70, 130), new Color(15, 25, 45), "Vanguard King"),
+        SORCERER("Sorcerer", "Scales with: INT & LUCK", new Color(100, 30, 150), new Color(30, 10, 45), "Arch-Warlock"),
+        OPERATOR("Operator", "Scales with: DEX & ACC", new Color(160, 20, 30), new Color(40, 10, 15), "Phantom Assassin"),
+        RANGER("Ranger", "Scales with: AGI & LUK", new Color(30, 120, 50), new Color(10, 30, 15), "Apex Sniper"),
+        PALADIN("Paladin", "Scales with: CON & CHA", new Color(200, 150, 20), new Color(45, 35, 10), "Divine Templar"),
+        RONIN("Ronin", "Scales with: DEX & CRT", new Color(180, 50, 50), new Color(40, 15, 15), "Spectral Shogun"),
+        BARD("Bard", "Scales with: CHA & LUK", new Color(220, 100, 200), new Color(45, 10, 40), "Grand Maestro"),
+        DRUID("Druid", "Scales with: WIS & CON", new Color(50, 180, 80), new Color(10, 40, 15), "Elder of the Wilds"),
+        NECROMANCER("Necromancer", "Scales with: INT & CON", new Color(80, 20, 100), new Color(20, 5, 25), "Immortal Lich"),
+        ALCHEMIST("Alchemist", "Scales with: INT & LUK", new Color(200, 150, 50), new Color(40, 30, 10), "Supreme Grandmaster");
 
-        String title, scaleDesc; Color color, darkBg;
-        ClassType(String t, String desc, Color c, Color bg) {
-            title = t; scaleDesc = desc; color = c; darkBg = bg;
+        String title, scaleDesc, awakenedName;
+        Color color, darkBg;
+
+        ClassType(String t, String desc, Color c, Color bg, String awakenedName) {
+            title = t; scaleDesc = desc; color = c; darkBg = bg; this.awakenedName = awakenedName;
         }
 
         public void applyStats(Player p) {
@@ -219,15 +230,18 @@ public class Vanguards extends JFrame {
     enum FamiliarSize { SMALL, MEDIUM, LARGE }
 
     static class Item {
-        String name; int price; Rarity rarity;
+        String name;
+        int price; Rarity rarity;
         public Item(String n, int p, Rarity r) { name = n; price = p; rarity = r; }
         public int getSellValue() { return Math.max(1, rarity.sellValue); }
     }
 
     class Familiar extends Item {
-        int id; FamiliarSize size; boolean isSynced = false;
+        int id;
+        FamiliarSize size; boolean isSynced = false;
         public Familiar(String n, int p, Rarity r, int id, FamiliarSize s) {
-            super(n, p, r); this.id = id; this.size = s;
+            super(n, p, r);
+            this.id = id; this.size = s;
         }
 
         public void render(Graphics2D g, int x, int y, int tick) {
@@ -239,51 +253,26 @@ public class Vanguards extends JFrame {
             g2.setColor(getAlphaColor(rarity.col, 30));
             g2.fillOval(-25, -25, 50, 50);
             switch(id) {
-                case 0: g2.setColor(getAlphaColor(new Color(0, 200, 255), 150));
-                    g2.fillOval(-10, -10, 20, 20); g2.setColor(Color.WHITE); g2.fillOval(-4, -4, 8, 8); break;
-                case 1: g2.setColor(Color.GREEN);
-                    g2.fillPolygon(new int[]{0, 8, 0, -8}, new int[]{-10, 0, 10, 0}, 4); g2.setColor(getAlphaColor(new Color(200, 255, 200), 150)); g2.fillOval(-15, -5, 10, 10);
-                    g2.fillOval(5, -5, 10, 10); break;
-                case 2: g2.setColor(getAlphaColor(new Color(0, 255, 100), 180)); g2.fillArc(-12, -10, 24, 20, 0, 180); g2.setColor(Color.BLACK);
-                    g2.fillOval(-6, -5, 3, 3); g2.fillOval(3, -5, 3, 3); break;
-                case 3: g2.setColor(Color.RED);
-                    g2.fillPolygon(new int[]{0, 10, -10}, new int[]{-10, 10, 10}, 3); g2.setColor(Color.DARK_GRAY); g2.drawArc(-10, -15, 8, 8, 0, 180);
-                    g2.drawArc(2, -15, 8, 8, 0, 180); break;
-                case 4: g2.setColor(Color.PINK); g2.fillOval(-6, -6, 12, 12); int wing = (int)(Math.sin(tick*0.5)*8);
-                    g2.setColor(getAlphaColor(new Color(255, 255, 0), 150)); g2.fillOval(-15, -wing, 10, wing*2+2); g2.fillOval(5, -wing, 10, wing*2+2); break;
-                case 5: g2.setColor(Color.DARK_GRAY);
-                    g2.fillOval(-5, -5, 10, 10); int flap = (int)(Math.sin(tick*0.4)*10); g2.fillPolygon(new int[]{-5, -15, -5}, new int[]{0, -flap, 5}, 3);
-                    g2.fillPolygon(new int[]{5, 15, 5}, new int[]{0, -flap, 5}, 3); break;
-                case 6: g2.setColor(Color.MAGENTA);
-                    g2.fillPolygon(new int[]{0, 5, 0, -5}, new int[]{-8, 0, 8, 0}, 4); g2.setColor(getAlphaColor(Color.WHITE, 100)); g2.drawOval(-12, -12, 24, 24);
-                    break;
-                case 7: g2.setColor(Color.GRAY); g2.fillRect(-10, -5, 20, 10); g2.fillPolygon(new int[]{5, 12, 10}, new int[]{-5, -5, 0}, 3); g2.setColor(Color.LIGHT_GRAY);
-                    g2.drawLine(-10, 0, -15, 5); break;
+                case 0: g2.setColor(getAlphaColor(new Color(0, 200, 255), 150)); g2.fillOval(-10, -10, 20, 20); g2.setColor(Color.WHITE); g2.fillOval(-4, -4, 8, 8); break;
+                case 1: g2.setColor(Color.GREEN); g2.fillPolygon(new int[]{0, 8, 0, -8}, new int[]{-10, 0, 10, 0}, 4); g2.setColor(getAlphaColor(new Color(200, 255, 200), 150)); g2.fillOval(-15, -5, 10, 10); g2.fillOval(5, -5, 10, 10); break;
+                case 2: g2.setColor(getAlphaColor(new Color(0, 255, 100), 180)); g2.fillArc(-12, -10, 24, 20, 0, 180); g2.setColor(Color.BLACK); g2.fillOval(-6, -5, 3, 3); g2.fillOval(3, -5, 3, 3); break;
+                case 3: g2.setColor(Color.RED); g2.fillPolygon(new int[]{0, 10, -10}, new int[]{-10, 10, 10}, 3); g2.setColor(Color.DARK_GRAY); g2.drawArc(-10, -15, 8, 8, 0, 180); g2.drawArc(2, -15, 8, 8, 0, 180); break;
+                case 4: g2.setColor(Color.PINK); g2.fillOval(-6, -6, 12, 12); int wing = (int)(Math.sin(tick*0.5)*8); g2.setColor(getAlphaColor(new Color(255, 255, 0), 150)); g2.fillOval(-15, -wing, 10, wing*2+2); g2.fillOval(5, -wing, 10, wing*2+2); break;
+                case 5: g2.setColor(Color.DARK_GRAY); g2.fillOval(-5, -5, 10, 10); int flap = (int)(Math.sin(tick*0.4)*10); g2.fillPolygon(new int[]{-5, -15, -5}, new int[]{0, -flap, 5}, 3); g2.fillPolygon(new int[]{5, 15, 5}, new int[]{0, -flap, 5}, 3); break;
+                case 6: g2.setColor(Color.MAGENTA); g2.fillPolygon(new int[]{0, 5, 0, -5}, new int[]{-8, 0, 8, 0}, 4); g2.setColor(getAlphaColor(Color.WHITE, 100)); g2.drawOval(-12, -12, 24, 24); break;
+                case 7: g2.setColor(Color.GRAY); g2.fillRect(-10, -5, 20, 10); g2.fillPolygon(new int[]{5, 12, 10}, new int[]{-5, -5, 0}, 3); g2.setColor(Color.LIGHT_GRAY); g2.drawLine(-10, 0, -15, 5); break;
                 case 8: g2.setColor(Color.BLACK); g2.fillOval(-12, -6, 24, 12); g2.setColor(Color.YELLOW); g2.fillOval(5, -4, 3, 3); break;
-                case 9: g2.setColor(new Color(200, 50, 50)); g2.fillRoundRect(-10, -8, 20, 16, 5, 5); g2.setColor(Color.ORANGE);
-                    g2.fillPolygon(new int[]{0, -10, 10}, new int[]{-8, -15, -15}, 3); break;
-                case 10: g2.setColor(new Color(139, 69, 19)); g2.fillRect(-8, -10, 16, 20);
-                    g2.setColor(new Color(100, 50, 10)); g2.fillRect(-12, -5, 4, 10); g2.fillRect(8, -5, 4, 10); break;
-                case 11: g2.setColor(Color.GRAY);
-                    g2.fillPolygon(new int[]{0, 10, -10}, new int[]{-10, 10, 10}, 3); g2.setColor(Color.DARK_GRAY); g2.fillOval(-12, -5, 8, 10); g2.fillOval(4, -5, 8, 10); break;
-                case 12: g2.setColor(new Color(210, 180, 140)); g2.fillOval(-10, -6, 20, 12); g2.setColor(Color.RED); g2.fillOval(5, -10, 10, 10); g2.setColor(Color.BLACK);
-                    g2.drawArc(-15, -10, 10, 10, 90, 180); break;
-                case 13: g2.setColor(new Color(101, 67, 33)); g2.fillRect(-4, -5, 8, 15);
-                    g2.setColor(new Color(34, 139, 34)); g2.fillOval(-10, -15, 20, 20); break;
-                case 14: g2.setColor(Color.WHITE); g2.fillArc(-12, -8, 16, 16, 90, 180);
-                    g2.setColor(new Color(255, 215, 0)); g2.fillArc(-4, -8, 16, 16, -90, 180); g2.setColor(Color.LIGHT_GRAY); g2.fillPolygon(new int[]{0, -10, 10}, new int[]{-8, -15, -15}, 3);
-                    break;
-                case 15: g2.setColor(Color.RED); g2.fillPolygon(new int[]{0, 15, -15}, new int[]{10, -10, -10}, 3); g2.setColor(Color.ORANGE); g2.fillOval(-6, -6, 12, 12); g2.setColor(Color.YELLOW);
-                    g2.drawLine(0, 10, 0, 20); break;
-                case 16: g2.setColor(new Color(70, 0, 70)); g2.fillRect(-15, -15, 30, 30); g2.setColor(Color.RED); g2.fillRect(5, -5, 5, 5);
-                    g2.fillRect(-10, -5, 5, 5); break;
-                case 17: g2.setColor(new Color(0, 150, 100));
-                    for(int i=0; i<5; i++) { int wy = (int)(Math.sin(tick*0.2 + i)*5); g2.fillOval(-15 + i*6, wy - 5, 10, 10);
-                    } break;
-                case 18: g2.setColor(Color.BLUE); g2.fillArc(-15, -10, 30, 20, 0, 180); g2.fillPolygon(new int[]{-15, -25, -25}, new int[]{0, -5, 5}, 3);
-                    g2.setColor(Color.CYAN); g2.fillOval(5, -5, 4, 4); break;
-                case 19: g2.setColor(new Color(210, 180, 140)); g2.fillOval(-12, -8, 24, 16); g2.setColor(Color.RED);
-                    g2.fillOval(4, -12, 8, 8); g2.setColor(Color.GRAY); g2.fillOval(-4, -14, 8, 8); g2.setColor(Color.GREEN); g2.fillOval(-12, -10, 8, 8); break;
+                case 9: g2.setColor(new Color(200, 50, 50)); g2.fillRoundRect(-10, -8, 20, 16, 5, 5); g2.setColor(Color.ORANGE); g2.fillPolygon(new int[]{0, -10, 10}, new int[]{-8, -15, -15}, 3); break;
+                case 10: g2.setColor(new Color(139, 69, 19)); g2.fillRect(-8, -10, 16, 20); g2.setColor(new Color(100, 50, 10)); g2.fillRect(-12, -5, 4, 10); g2.fillRect(8, -5, 4, 10); break;
+                case 11: g2.setColor(Color.GRAY); g2.fillPolygon(new int[]{0, 10, -10}, new int[]{-10, 10, 10}, 3); g2.setColor(Color.DARK_GRAY); g2.fillOval(-12, -5, 8, 10); g2.fillOval(4, -5, 8, 10); break;
+                case 12: g2.setColor(new Color(210, 180, 140)); g2.fillOval(-10, -6, 20, 12); g2.setColor(Color.RED); g2.fillOval(5, -10, 10, 10); g2.setColor(Color.BLACK); g2.drawArc(-15, -10, 10, 10, 90, 180); break;
+                case 13: g2.setColor(new Color(101, 67, 33)); g2.fillRect(-4, -5, 8, 15); g2.setColor(new Color(34, 139, 34)); g2.fillOval(-10, -15, 20, 20); break;
+                case 14: g2.setColor(Color.WHITE); g2.fillArc(-12, -8, 16, 16, 90, 180); g2.setColor(new Color(255, 215, 0)); g2.fillArc(-4, -8, 16, 16, -90, 180); g2.setColor(Color.LIGHT_GRAY); g2.fillPolygon(new int[]{0, -10, 10}, new int[]{-8, -15, -15}, 3); break;
+                case 15: g2.setColor(Color.RED); g2.fillPolygon(new int[]{0, 15, -15}, new int[]{10, -10, -10}, 3); g2.setColor(Color.ORANGE); g2.fillOval(-6, -6, 12, 12); g2.setColor(Color.YELLOW); g2.drawLine(0, 10, 0, 20); break;
+                case 16: g2.setColor(new Color(70, 0, 70)); g2.fillRect(-15, -15, 30, 30); g2.setColor(Color.RED); g2.fillRect(5, -5, 5, 5); g2.fillRect(-10, -5, 5, 5); break;
+                case 17: g2.setColor(new Color(0, 150, 100)); for(int i=0; i<5; i++) { int wy = (int)(Math.sin(tick*0.2 + i)*5); g2.fillOval(-15 + i*6, wy - 5, 10, 10); } break;
+                case 18: g2.setColor(Color.BLUE); g2.fillArc(-15, -10, 30, 20, 0, 180); g2.fillPolygon(new int[]{-15, -25, -25}, new int[]{0, -5, 5}, 3); g2.setColor(Color.CYAN); g2.fillOval(5, -5, 4, 4); break;
+                case 19: g2.setColor(new Color(210, 180, 140)); g2.fillOval(-12, -8, 24, 16); g2.setColor(Color.RED); g2.fillOval(4, -12, 8, 8); g2.setColor(Color.GRAY); g2.fillOval(-4, -14, 8, 8); g2.setColor(Color.GREEN); g2.fillOval(-12, -10, 8, 8); break;
             }
             g2.dispose();
         }
@@ -346,18 +335,16 @@ public class Vanguards extends JFrame {
                 else { dmg -= shield; shield = 0; }
             }
             hp = Math.max(0, hp - dmg);
-
-            // Feature 8: Resurrection Idol checking
             if (hp <= 0 && this instanceof Player && ((Player)this).hasResurrection) {
                 hp = maxHp / 2;
                 ((Player)this).hasResurrection = false;
             }
-
             hitFlash = 10;
         }
 
         public void heal(int amt) { hp = Math.min(maxHp, hp + amt); }
         public abstract void render(Graphics2D g, int x, int y, int tick);
+
         public void updateLiveStats() {
             displayHp += (hp - displayHp) * 0.20;
             displayCatchupHp += (displayHp - displayCatchupHp) * 0.05;
@@ -393,11 +380,13 @@ public class Vanguards extends JFrame {
         double prayerBuffMult = 1.0;
         int totalRunTicks = 0;
 
-        // Prayer Features Data
         public boolean hasResurrection = false;
         public boolean shopDiscount = false;
         public int bountyMultTurns = 0;
         public int totalPrayers = 0;
+
+        boolean isTransformed = false;
+        int transformTurns = 0;
 
         List<Weapon> equippedWeapons = new ArrayList<>();
         List<Armor> equippedArmors = new ArrayList<>();
@@ -432,17 +421,17 @@ public class Vanguards extends JFrame {
             return new int[]{bH, bA, bD, bS, bL, bStr, bCon, bDex, bInt, bWis, bCha};
         }
 
-        public int getTotalMaxHp() { return (int)((maxHp + getBonusStats()[0]) * getFamiliarMultiplier()); }
-        public int getTotalAtk() { return (int)((atk + getBonusStats()[1]) * getFamiliarMultiplier()); }
-        public int getTotalDef() { return (int)((def + getBonusStats()[2]) * getFamiliarMultiplier()); }
-        public int getTotalSpd() { return (int)((spd + getBonusStats()[3]) * getFamiliarMultiplier()); }
-        public int getTotalLuk() { return (int)((luk + getBonusStats()[4]) * getFamiliarMultiplier()); }
-        public int getTotalStr() { return (int)((str + getBonusStats()[5]) * getFamiliarMultiplier()); }
-        public int getTotalCon() { return (int)((con + getBonusStats()[6]) * getFamiliarMultiplier()); }
-        public int getTotalDex() { return (int)((dex + getBonusStats()[7]) * getFamiliarMultiplier()); }
-        public int getTotalInt() { return (int)((intelligence + getBonusStats()[8]) * getFamiliarMultiplier()); }
-        public int getTotalWis() { return (int)((wis + getBonusStats()[9]) * getFamiliarMultiplier()); }
-        public int getTotalCha() { return (int)((cha + getBonusStats()[10]) * getFamiliarMultiplier()); }
+        public int getTotalMaxHp() { return (int)((maxHp + getBonusStats()[0]) * getFamiliarMultiplier() * (isTransformed ? 1.5 : 1.0)); }
+        public int getTotalAtk() { return (int)((atk + getBonusStats()[1]) * getFamiliarMultiplier() * (isTransformed ? 2.0 : 1.0)); }
+        public int getTotalDef() { return (int)((def + getBonusStats()[2]) * getFamiliarMultiplier() * (isTransformed ? 2.0 : 1.0)); }
+        public int getTotalSpd() { return (int)((spd + getBonusStats()[3]) * getFamiliarMultiplier() * (isTransformed ? 2.0 : 1.0)); }
+        public int getTotalLuk() { return (int)((luk + getBonusStats()[4]) * getFamiliarMultiplier() * (isTransformed ? 2.0 : 1.0)); }
+        public int getTotalStr() { return (int)((str + getBonusStats()[5]) * getFamiliarMultiplier() * (isTransformed ? 2.0 : 1.0)); }
+        public int getTotalCon() { return (int)((con + getBonusStats()[6]) * getFamiliarMultiplier() * (isTransformed ? 2.0 : 1.0)); }
+        public int getTotalDex() { return (int)((dex + getBonusStats()[7]) * getFamiliarMultiplier() * (isTransformed ? 2.0 : 1.0)); }
+        public int getTotalInt() { return (int)((intelligence + getBonusStats()[8]) * getFamiliarMultiplier() * (isTransformed ? 2.0 : 1.0)); }
+        public int getTotalWis() { return (int)((wis + getBonusStats()[9]) * getFamiliarMultiplier() * (isTransformed ? 2.0 : 1.0)); }
+        public int getTotalCha() { return (int)((cha + getBonusStats()[10]) * getFamiliarMultiplier() * (isTransformed ? 2.0 : 1.0)); }
 
         @Override public void heal(int amt) {
             int diff = (hp + amt) - getTotalMaxHp();
@@ -452,17 +441,22 @@ public class Vanguards extends JFrame {
 
         public int getExpRequirement() { return 100 + (level * level * 50); }
         public double getParryChance() { return Math.min(0.25, getTotalSpd() * 0.005); }
+
         public String getRankTitle() {
+            if(isTransformed) return "Awakened";
             if(level < 5) return "Novice";
-            if(level < 10) return "Adept"; if(level < 15) return "Expert";
-            if(level < 20) return "Master"; if(level < 25) return "Grandmaster";
+            if(level < 10) return "Adept";
+            if(level < 15) return "Expert";
+            if(level < 20) return "Master";
+            if(level < 25) return "Grandmaster";
             return "Vanguard";
         }
 
         public boolean checkLevelUp(JTextArea log) {
             int target = getExpRequirement();
             if(xp >= target) {
-                xp -= target; level++; hp = getTotalMaxHp(); energy = maxEnergy; unspentStats += 3;
+                xp -= target;
+                level++; hp = getTotalMaxHp(); energy = maxEnergy; unspentStats += 3;
                 str += 2; con += 2; dex += 2; intelligence += 2;
                 log.append("\n[SYS] LEVEL UP! Reached Level " + level + "\n"); return true;
             } return false;
@@ -478,15 +472,21 @@ public class Vanguards extends JFrame {
             int px = x + animX;
             double animOffset = 0;
             double scaleY = 1.0 + Math.sin(tick * 0.1) * 0.03;
+
+            if (isTransformed) scaleY *= 1.2;
+
             if (cls == ClassType.RANGER) animOffset = Math.sin(tick * 0.2) * 8;
             else if (cls == ClassType.SORCERER) animOffset = Math.sin(tick * 0.05) * 15;
             else if (cls == ClassType.RONIN) animOffset = Math.sin(tick * 0.1) * 3 + 5;
             else if (cls == ClassType.KNIGHT) animOffset = Math.sin(tick * 0.08) * 4;
             else animOffset = Math.sin(tick * 0.1) * 6;
+
             int py = (int) (y + animOffset) + animY;
 
-            g.setColor(getAlphaColor(Color.BLACK, (int)(100 + Math.sin(tick * 0.1)*20))); g.fillOval(px-25, y+85, 110, 20);
-            if(ultStacks >= 12) {
+            g.setColor(getAlphaColor(Color.BLACK, (int)(100 + Math.sin(tick * 0.1)*20)));
+            g.fillOval(px-25, y+85, 110, 20);
+
+            if(ultStacks >= 12 && !isTransformed) {
                 AffineTransform auraT = g.getTransform();
                 g.translate(px+25, py+40);
                 g.rotate(tick * 0.05);
@@ -494,6 +494,13 @@ public class Vanguards extends JFrame {
                 int starSize = 110 + (int)(Math.sin(tick*0.1)*10);
                 g.fillPolygon(createStar(starSize, starSize/2, 8));
                 g.setTransform(auraT);
+            }
+
+            if(isTransformed) {
+                g.setColor(getAlphaColor(cls.color, 60 + (int)(Math.sin(tick*0.2)*20)));
+                g.fillOval(px - 60, py - 60, 170, 170);
+                g.setColor(getAlphaColor(Color.WHITE, 40));
+                g.fillOval(px - 40, py - 40, 130, 130);
             }
 
             if(currentAnim.equals("WINDUP")) {
@@ -531,47 +538,134 @@ public class Vanguards extends JFrame {
             }
 
             Graphics2D g2 = (Graphics2D)g.create();
-            g2.translate(px, py + 85); g2.scale(1.0, scaleY); g2.translate(-px, -(py + 85));
+            g2.translate(px, py + 85);
+            g2.scale(isTransformed ? 1.2 : 1.0, scaleY);
+            g2.translate(-px, -(py + 85));
 
-            if(cls == ClassType.KNIGHT) { g2.setColor(Color.LIGHT_GRAY);
-                g2.fillRoundRect(px-10, py+10, 30, 80, 5, 5); g2.setColor(hitFlash > 0 ? Color.WHITE : color); g2.fillRoundRect(px, py, 60, 85, 15, 15);
-                g2.setColor(new Color(50, 40, 60)); g2.fillOval(px-20, py+30, 40, 50); g2.setColor(new Color(212, 175, 55)); g2.fillRect(px+50, py+35, 20, 5); g2.setColor(Color.WHITE);
-                g2.fillRect(px-15, py+50, 20, 5); g2.fillRect(px-7, py+40, 5, 25); g2.setColor(Color.DARK_GRAY); g2.fillRect(px+10, py+15, 40, 5);
-            } else if(cls == ClassType.SORCERER) { g2.fillPolygon(new int[]{px+30, px-15, px+75}, new int[]{py, py+85, py+85}, 3); g2.setColor(new Color(0, 255, 255));
-                g2.fillOval(px+58, py-25, 20, 20); g2.fillOval(px+10, py-30, 15, 15); g2.setColor(new Color(139, 69, 19)); g2.fillRect(px+65, py-15, 5, 90); g2.setColor(new Color(80, 20, 100));
-                g2.fillPolygon(new int[]{px+10, px-20, px+40}, new int[]{py+20, py+90, py+90}, 3); g2.setColor(Color.BLUE); g2.fillRect(px-10, py+40, 15, 20); g2.setColor(Color.WHITE); g2.drawLine(px-5, py+45, px+2, py+45);
-            } else if(cls == ClassType.RANGER) { g2.setColor(new Color(20, 50, 20)); g2.fillPolygon(new int[]{px-10, px+30, px+70}, new int[]{py+90, py+10, py+90}, 3);
-                g2.setColor(hitFlash > 0 ? Color.WHITE : color); g2.fillPolygon(new int[]{px, px+20, px+40}, new int[]{py+80, py, py+80}, 3); g2.setColor(Color.GREEN);
-                g2.fillOval(px+15, py+30, 10, 10); g2.setColor(Color.WHITE); g2.drawLine(px+10, py+10, px+10, py+70); g2.setColor(Color.LIGHT_GRAY); g2.drawLine(px+10, py+40, px+30, py+40); g2.setColor(Color.BLACK); g2.fillOval(px+15, py+15, 10, 10);
-            } else if(cls == ClassType.PALADIN) { g2.setColor(getAlphaColor(new Color(255, 215, 0), 100)); g2.fillOval(px-10, py-10, 70, 70);
-                g2.setColor(hitFlash > 0 ? Color.WHITE : color); g2.fillRect(px, py, 50, 85); g2.setColor(Color.YELLOW); g2.fillRect(px+20, py+10, 10, 50); g2.fillRect(px+10, py+30, 30, 10);
-                g2.setColor(Color.WHITE); g2.fillRect(px+20, py+35, 10, 30); g2.fillRect(px+10, py+45, 30, 10); g2.setColor(Color.YELLOW); g2.drawOval(px+5, py-15, 40, 15);
-            } else if(cls == ClassType.RONIN) { g2.fillRoundRect(px+5, py+15, 40, 70, 5, 5); g2.setColor(Color.DARK_GRAY); g2.fillOval(px-5, py, 60, 20); g2.setColor(Color.LIGHT_GRAY);
-                g2.fillRect(px+45, py+40, 40, 5); g2.setColor(Color.LIGHT_GRAY); g2.drawLine(px+65, py+42, px+95, py+42); g2.setColor(Color.RED); g2.fillRect(px, py+10, 50, 5);
+            if(cls == ClassType.KNIGHT) {
+                g2.setColor(Color.LIGHT_GRAY); g2.fillRoundRect(px-10, py+10, 30, 80, 5, 5);
+                g2.setColor(hitFlash > 0 ? Color.WHITE : color); g2.fillRoundRect(px, py, 60, 85, 15, 15);
+                g2.setColor(new Color(50, 40, 60)); g2.fillOval(px-20, py+30, 40, 50);
+                g2.setColor(new Color(212, 175, 55)); g2.fillRect(px+50, py+35, 20, 5);
+                g2.setColor(Color.WHITE); g2.fillRect(px-15, py+50, 20, 5); g2.fillRect(px-7, py+40, 5, 25);
+                g2.setColor(Color.DARK_GRAY); g2.fillRect(px+10, py+15, 40, 5);
+                if(isTransformed) {
+                    g2.setColor(new Color(255, 215, 0));
+                    g2.fillPolygon(new int[]{px, px+15, px+30, px+45, px+60}, new int[]{py-20, py, py-20, py, py-20}, 5);
+                    g2.fillRect(px, py, 60, 10);
+                }
+            } else if(cls == ClassType.SORCERER) {
+                g2.fillPolygon(new int[]{px+30, px-15, px+75}, new int[]{py, py+85, py+85}, 3);
+                g2.setColor(new Color(0, 255, 255)); g2.fillOval(px+58, py-25, 20, 20); g2.fillOval(px+10, py-30, 15, 15);
+                g2.setColor(new Color(139, 69, 19)); g2.fillRect(px+65, py-15, 5, 90);
+                g2.setColor(new Color(80, 20, 100)); g2.fillPolygon(new int[]{px+10, px-20, px+40}, new int[]{py+20, py+90, py+90}, 3);
+                g2.setColor(Color.BLUE); g2.fillRect(px-10, py+40, 15, 20);
+                g2.setColor(Color.WHITE); g2.drawLine(px-5, py+45, px+2, py+45);
+                if(isTransformed) {
+                    g2.setColor(new Color(150, 0, 255));
+                    g2.fillOval(px-30, py, 15, 15); g2.fillOval(px+80, py, 15, 15);
+                    g2.fillPolygon(new int[]{px+10, px+20, px+15}, new int[]{py-10, py-10, py-30}, 3);
+                    g2.fillPolygon(new int[]{px+30, px+40, px+35}, new int[]{py-10, py-10, py-30}, 3);
+                }
+            } else if(cls == ClassType.RANGER) {
+                g2.setColor(new Color(20, 50, 20)); g2.fillPolygon(new int[]{px-10, px+30, px+70}, new int[]{py+90, py+10, py+90}, 3);
+                g2.setColor(hitFlash > 0 ? Color.WHITE : color); g2.fillPolygon(new int[]{px, px+20, px+40}, new int[]{py+80, py, py+80}, 3);
+                g2.setColor(Color.GREEN); g2.fillOval(px+15, py+30, 10, 10);
+                g2.setColor(Color.WHITE); g2.drawLine(px+10, py+10, px+10, py+70);
+                g2.setColor(Color.LIGHT_GRAY); g2.drawLine(px+10, py+40, px+30, py+40);
+                g2.setColor(Color.BLACK); g2.fillOval(px+15, py+15, 10, 10);
+                if(isTransformed) {
+                    g2.setColor(Color.RED);
+                    g2.drawLine(px+20, py+40, px+150, py+40);
+                    g2.setColor(new Color(0, 100, 0));
+                    g2.fillOval(px+10, py-15, 20, 20);
+                }
+            } else if(cls == ClassType.PALADIN) {
+                g2.setColor(getAlphaColor(new Color(255, 215, 0), 100)); g2.fillOval(px-10, py-10, 70, 70);
+                g2.setColor(hitFlash > 0 ? Color.WHITE : color); g2.fillRect(px, py, 50, 85);
+                g2.setColor(Color.YELLOW); g2.fillRect(px+20, py+10, 10, 50); g2.fillRect(px+10, py+30, 30, 10);
+                g2.setColor(Color.WHITE); g2.fillRect(px+20, py+35, 10, 30); g2.fillRect(px+10, py+45, 30, 10);
+                g2.setColor(Color.YELLOW); g2.drawOval(px+5, py-15, 40, 15);
+                if(isTransformed) {
+                    g2.setColor(new Color(255, 255, 150));
+                    g2.fillPolygon(new int[]{px-20, px-40, px-10}, new int[]{py+20, py-20, py+50}, 3);
+                    g2.fillPolygon(new int[]{px+70, px+90, px+60}, new int[]{py+20, py-20, py+50}, 3);
+                }
+            } else if(cls == ClassType.RONIN) {
+                g2.fillRoundRect(px+5, py+15, 40, 70, 5, 5);
+                g2.setColor(Color.DARK_GRAY); g2.fillOval(px-5, py, 60, 20);
+                g2.setColor(Color.LIGHT_GRAY); g2.fillRect(px+45, py+40, 40, 5);
+                g2.setColor(Color.LIGHT_GRAY); g2.drawLine(px+65, py+42, px+95, py+42);
+                g2.setColor(Color.RED); g2.fillRect(px, py+10, 50, 5);
                 g2.fillPolygon(new int[]{px, px-15, px-10}, new int[]{py+10, py+20, py+30}, 3);
-            } else if(cls == ClassType.BARD) { g2.fillRoundRect(px-5, py+10, 40, 75, 10, 10);
-                g2.setColor(new Color(139, 69, 19)); g2.fillOval(px+5, py+35, 30, 40); g2.fillRect(px+15, py+15, 10, 30); g2.setColor(Color.MAGENTA);
-                g2.fillPolygon(new int[]{px-10, px+20, px+40}, new int[]{py+10, py-10, py+10}, 3); g2.setColor(Color.YELLOW); g2.fillOval(px+35, py-15, 8, 15);
-            } else if(cls == ClassType.DRUID) { g2.fillRoundRect(px, py+5, 45, 80, 5, 5); g2.setColor(new Color(101, 67, 33)); g2.drawLine(px+10, py+5, px-5, py-15);
-                g2.drawLine(px-5, py-15, px-15, py-10); g2.drawLine(px+35, py+5, px+50, py-15); g2.drawLine(px+50, py-15, px+60, py-10); g2.setColor(new Color(34, 139, 34)); g2.fillOval(px-5, py+30, 60, 10);
-                g2.fillOval(px+15, py+50, 60, 10);
-            } else if(cls == ClassType.NECROMANCER) { g2.fillPolygon(new int[]{px+20, px-10, px+50}, new int[]{py, py+85, py+85}, 3); g2.setColor(Color.WHITE);
-                g2.fillOval(px+10, py-10, 20, 25); g2.setColor(Color.BLACK); g2.fillOval(px+13, py-3, 5, 5); g2.fillOval(px+22, py-3, 5, 5); g2.setColor(Color.GRAY); g2.fillRect(px+40, py, 5, 90);
+                if(isTransformed) {
+                    g2.setColor(getAlphaColor(Color.RED, 100));
+                    g2.fillRect(px, py-20, 50, 100);
+                    g2.setColor(Color.RED);
+                    g2.drawLine(px+95, py+42, px+150, py+42);
+                }
+            } else if(cls == ClassType.BARD) {
+                g2.fillRoundRect(px-5, py+10, 40, 75, 10, 10);
+                g2.setColor(new Color(139, 69, 19)); g2.fillOval(px+5, py+35, 30, 40); g2.fillRect(px+15, py+15, 10, 30);
+                g2.setColor(Color.MAGENTA); g2.fillPolygon(new int[]{px-10, px+20, px+40}, new int[]{py+10, py-10, py+10}, 3);
+                g2.setColor(Color.YELLOW); g2.fillOval(px+35, py-15, 8, 15);
+                if(isTransformed) {
+                    g2.setColor(Color.PINK);
+                    g2.drawString("♫", px-20, py); g2.drawString("♪", px+50, py-10); g2.drawString("♬", px+30, py-30);
+                }
+            } else if(cls == ClassType.DRUID) {
+                g2.fillRoundRect(px, py+5, 45, 80, 5, 5);
+                g2.setColor(new Color(101, 67, 33)); g2.drawLine(px+10, py+5, px-5, py-15);
+                g2.drawLine(px-5, py-15, px-15, py-10); g2.drawLine(px+35, py+5, px+50, py-15); g2.drawLine(px+50, py-15, px+60, py-10);
+                g2.setColor(new Color(34, 139, 34)); g2.fillOval(px-5, py+30, 60, 10); g2.fillOval(px+15, py+50, 60, 10);
+                if(isTransformed) {
+                    g2.setColor(new Color(139, 69, 19));
+                    g2.drawLine(px+10, py-10, px-10, py-40); g2.drawLine(px+35, py-10, px+55, py-40);
+                    g2.setColor(new Color(34, 139, 34));
+                    g2.drawOval(px-10, py, 65, 80);
+                }
+            } else if(cls == ClassType.NECROMANCER) {
+                g2.fillPolygon(new int[]{px+20, px-10, px+50}, new int[]{py, py+85, py+85}, 3);
+                g2.setColor(Color.WHITE); g2.fillOval(px+10, py-10, 20, 25);
+                g2.setColor(Color.BLACK); g2.fillOval(px+13, py-3, 5, 5); g2.fillOval(px+22, py-3, 5, 5);
+                g2.setColor(Color.GRAY); g2.fillRect(px+40, py, 5, 90);
                 g2.fillArc(px+20, py-10, 30, 30, 45, 180);
-            } else if(cls == ClassType.ALCHEMIST) { g2.fillRoundRect(px+5, py+10, 35, 75, 8, 8); g2.setColor(Color.CYAN);
-                g2.fillOval(px+5, py, 15, 15); g2.fillOval(px+25, py, 15, 15); g2.setColor(Color.BLACK); g2.drawLine(px+20, py+7, px+25, py+7); g2.setColor(Color.GREEN);
-                g2.fillPolygon(new int[]{px-10, px-20, px}, new int[]{py+40, py+60, py+60}, 3); g2.setColor(Color.WHITE); g2.fillRect(px-12, py+35, 4, 5);
-            } else { g2.fillRoundRect(px+10, py, 40, 85, 20, 20); g2.setColor(Color.CYAN); g2.fillRect(px+15, py+20, 30, 8); g2.setColor(Color.DARK_GRAY);
-                g2.fillArc(px+5, py-5, 50, 45, 0, 180); g2.setColor(Color.GREEN); g2.fillOval(px+15, py+15, 12, 12); g2.fillOval(px+30, py+15, 12, 12); g2.setColor(new Color(100, 80, 50));
-                g2.fillRoundRect(px-10, py+20, 15, 40, 5, 5); g2.setColor(Color.DARK_GRAY); g2.fillRect(px+45, py+30, 40, 10); g2.fillRect(px+55, py+40, 10, 15);
+                if(isTransformed) {
+                    g2.setColor(Color.GREEN);
+                    g2.fillOval(px+13, py-3, 5, 5); g2.fillOval(px+22, py-3, 5, 5);
+                    g2.setColor(getAlphaColor(Color.GREEN, 80));
+                    g2.fillOval(px-10, py-20, 60, 100);
+                }
+            } else if(cls == ClassType.ALCHEMIST) {
+                g2.fillRoundRect(px+5, py+10, 35, 75, 8, 8);
+                g2.setColor(Color.CYAN); g2.fillOval(px+5, py, 15, 15); g2.fillOval(px+25, py, 15, 15);
+                g2.setColor(Color.BLACK); g2.drawLine(px+20, py+7, px+25, py+7);
+                g2.setColor(Color.GREEN); g2.fillPolygon(new int[]{px-10, px-20, px}, new int[]{py+40, py+60, py+60}, 3);
+                g2.setColor(Color.WHITE); g2.fillRect(px-12, py+35, 4, 5);
+                if(isTransformed) {
+                    g2.setColor(Color.ORANGE);
+                    g2.fillPolygon(new int[]{px+40, px+50, px+30}, new int[]{py+40, py+60, py+60}, 3);
+                    g2.setColor(Color.MAGENTA);
+                    g2.fillPolygon(new int[]{px+15, px+25, px+5}, new int[]{py-20, py, py}, 3);
+                }
+            } else {
+                g2.fillRoundRect(px+10, py, 40, 85, 20, 20);
+                g2.setColor(Color.CYAN); g2.fillRect(px+15, py+20, 30, 8);
+                g2.setColor(Color.DARK_GRAY); g2.fillArc(px+5, py-5, 50, 45, 0, 180);
+                g2.setColor(Color.GREEN); g2.fillOval(px+15, py+15, 12, 12); g2.fillOval(px+30, py+15, 12, 12);
+                g2.setColor(new Color(100, 80, 50)); g2.fillRoundRect(px-10, py+20, 15, 40, 5, 5);
+                g2.setColor(Color.DARK_GRAY); g2.fillRect(px+45, py+30, 40, 10); g2.fillRect(px+55, py+40, 10, 15);
             }
             g2.dispose();
 
-            if(hasPet) { g.setColor(Color.CYAN);
-                int petX = px - 40 + (int)(Math.sin(tick*0.1)*10); int petY = py + 20 + (int)(Math.cos(tick*0.15)*10); g.fillOval(petX, petY, 15, 15);
+            if(hasPet) {
+                g.setColor(Color.CYAN);
+                int petX = px - 40 + (int)(Math.sin(tick*0.1)*10); int petY = py + 20 + (int)(Math.cos(tick*0.15)*10);
+                g.fillOval(petX, petY, 15, 15);
             }
 
-            for(int i=0; i<equippedFamiliars.size(); i++) { Familiar f = equippedFamiliars.get(i);
+            for(int i=0; i<equippedFamiliars.size(); i++) {
+                Familiar f = equippedFamiliars.get(i);
                 int fx = px + (i == 0 ? -50 : 60) + (int)(Math.sin(tick*0.05 + f.id)*10);
                 int fy = py + (i == 0 ? 10 : 30) + (int)(Math.cos(tick*0.07 + f.id)*10);
                 f.render(g, fx, fy, tick);
@@ -580,8 +674,15 @@ public class Vanguards extends JFrame {
             g.setFont(FONT_SANSSERIF_BOLD_12); int nameWidth = g.getFontMetrics().stringWidth(name);
             drawShadowText(g, name, px + (30 - nameWidth/2), py - 50, Color.WHITE);
             String rank = "<" + getRankTitle() + ">";
-            int rankWidth = g.getFontMetrics().stringWidth(rank); drawShadowText(g, rank, px + (30 - rankWidth/2), py - 35, Color.LIGHT_GRAY);
+            if (isTransformed) {
+                g.setFont(FONT_IMPACT_14);
+                rank = "<" + cls.awakenedName.toUpperCase() + ">";
+            }
+            int rankWidth = g.getFontMetrics().stringWidth(rank);
+            drawShadowText(g, rank, px + (30 - rankWidth/2), py - 35, isTransformed ? Color.CYAN : Color.LIGHT_GRAY);
+
             int textY = py - 15; g.setFont(FONT_IMPACT_14);
+            if(isTransformed) { drawGlowText(g, "AWAKENED (" + transformTurns + ")", px, textY, Color.CYAN, Color.WHITE); textY -= 15; }
             if(activeBuffTurns > 0) { drawShadowText(g, "ATK UP (" + activeBuffTurns + ")", px, textY, Color.CYAN); textY -= 15; }
             if(prayerBuffTurns > 0) { drawShadowText(g, "BLESSING (" + prayerBuffTurns + ")", px, textY, new Color(220, 20, 60)); textY -= 15; }
             if(thornsTurns > 0) { drawShadowText(g, "THORNS (" + thornsTurns + ")", px, textY, Color.PINK); textY -= 15; }
@@ -609,14 +710,17 @@ public class Vanguards extends JFrame {
             int baseHP = (int)((boss ? 700 : 90) * scaleFactor); int baseATK = (int)((boss ? 45 : 18) * scaleFactor);
             int baseDEF = (int)((boss ? 30 : 10) * scaleFactor); int baseSPD = (int)(10 + (stage * 2));
             if(!boss) {
-                if(archetype == EnemyType.BRUTE) { baseHP *= 1.3; baseATK *= 1.2; baseDEF *= 0.8; } else if(archetype == EnemyType.ASSASSIN) { baseHP *= 0.8; baseATK *= 1.5;
-                    baseSPD *= 2; }
-                else if(archetype == EnemyType.TANK) { baseHP *= 1.5; baseDEF *= 1.8; baseATK *= 0.7; } else if(archetype == EnemyType.MAGE) { baseATK *= 1.8; baseHP *= 0.7; }
+                if(archetype == EnemyType.BRUTE) { baseHP *= 1.3; baseATK *= 1.2; baseDEF *= 0.8; }
+                else if(archetype == EnemyType.ASSASSIN) { baseHP *= 0.8; baseATK *= 1.5; baseSPD *= 2; }
+                else if(archetype == EnemyType.TANK) { baseHP *= 1.5; baseDEF *= 1.8; baseATK *= 0.7; }
+                else if(archetype == EnemyType.MAGE) { baseATK *= 1.8; baseHP *= 0.7; }
                 if(elite == EliteModifier.ARMORED) baseDEF *= 2.0;
-                if(elite == EliteModifier.SWIFT) baseSPD *= 2.5; if(elite == EliteModifier.CORRUPTED) { baseHP *= 2.5; baseATK *= 1.8; this.color = Color.MAGENTA; }
+                if(elite == EliteModifier.SWIFT) baseSPD *= 2.5;
+                if(elite == EliteModifier.CORRUPTED) { baseHP *= 2.5; baseATK *= 1.8; this.color = Color.MAGENTA; }
             } else {
-                if(bossArchetype == BossArchetype.COLOSSUS) { baseHP *= 1.5; baseDEF *= 1.5; baseSPD *= 0.5; } else if(bossArchetype == BossArchetype.NECROMANCER) { baseATK *= 1.5; baseHP *= 0.8;
-                } else if(bossArchetype == BossArchetype.VOID_DRAGON) { baseSPD *= 2.0; baseATK *= 1.3; }
+                if(bossArchetype == BossArchetype.COLOSSUS) { baseHP *= 1.5; baseDEF *= 1.5; baseSPD *= 0.5; }
+                else if(bossArchetype == BossArchetype.NECROMANCER) { baseATK *= 1.5; baseHP *= 0.8; }
+                else if(bossArchetype == BossArchetype.VOID_DRAGON) { baseSPD *= 2.0; baseATK *= 1.3; }
             }
 
             this.maxHp = this.hp = baseHP;
@@ -644,13 +748,20 @@ public class Vanguards extends JFrame {
             g2.translate(px, py + 85); g2.scale(1.0, scaleY); g2.translate(-px, -(py + 85));
             g2.setColor(renderCol);
             if (isBoss) {
-                if(bossArchetype == BossArchetype.COLOSSUS) { g2.fillRect(px, py, 140, 140); g2.setColor(Color.RED); g2.fillOval(px+40, py+40, 20, 20); g2.fillOval(px+80, py+40, 20, 20); }
-                else if(bossArchetype == BossArchetype.NECROMANCER) { g2.fillPolygon(new int[]{px+70, px+140, px}, new int[]{py-40, py+140, py+140}, 3);
-                    g2.setColor(Color.MAGENTA); g2.fillOval(px-20, py+(int)(Math.sin(tick*0.1)*10), 30, 30); g2.fillOval(px+130, py+(int)(Math.cos(tick*0.1)*10), 30, 30); }
-                else if(bossArchetype == BossArchetype.MECHA_CORE) { g2.fillOval(px+10, py+10, 120, 120);
+                if(bossArchetype == BossArchetype.COLOSSUS) {
+                    g2.fillRect(px, py, 140, 140);
+                    g2.setColor(Color.RED); g2.fillOval(px+40, py+40, 20, 20); g2.fillOval(px+80, py+40, 20, 20);
+                }
+                else if(bossArchetype == BossArchetype.NECROMANCER) {
+                    g2.fillPolygon(new int[]{px+70, px+140, px}, new int[]{py-40, py+140, py+140}, 3);
+                    g2.setColor(Color.MAGENTA); g2.fillOval(px-20, py+(int)(Math.sin(tick*0.1)*10), 30, 30); g2.fillOval(px+130, py+(int)(Math.cos(tick*0.1)*10), 30, 30);
+                }
+                else if(bossArchetype == BossArchetype.MECHA_CORE) {
+                    g2.fillOval(px+10, py+10, 120, 120);
                     g2.setColor(Color.CYAN); g2.drawArc(px-10, py-10, 160, 160, tick*5, 180); g2.drawArc(px, py, 140, 140, -tick*5, 180); g2.fillOval(px+50, py+50, 40, 40);
                 }
-                else if(bossArchetype == BossArchetype.VOID_DRAGON) { int[] dx = {px+10, px+70, px+130, px+150, px+90, px-20};
+                else if(bossArchetype == BossArchetype.VOID_DRAGON) {
+                    int[] dx = {px+10, px+70, px+130, px+150, px+90, px-20};
                     int[] dy = {py+40, py-20, py+60, py+140, py+100, py+120}; g2.fillPolygon(dx, dy, 6); g2.setColor(Color.YELLOW); g2.fillOval(px+50, py+10, 15, 15);
                 }
             } else {
@@ -677,32 +788,26 @@ public class Vanguards extends JFrame {
         Color c; int life = 100, maxLife = 100; boolean temporary = false;
         public Particle(Color c, boolean temp, double startX, double startY) {
             this(c, temp, startX, startY, (Math.random() - 0.5) * 4, 1 + Math.random() * 3, 30 + (int)(Math.random() * 20), 2 + Math.random() * 4);
-            if(!temp) { this.speedY = 0.5 + Math.random() * 2; this.speedX = 0; this.x = Math.random() * 1350; this.y = Math.random() * 480; }
+            if(!temp) { this.speedY = 0.5 + Math.random() * 2; this.speedX = 0; this.x = Math.random() * 1350;
+                this.y = Math.random() * 480; }
             else { this.x = startX + (Math.random()*40 - 20); this.y = startY + (Math.random()*40 - 20); }
         }
         public Particle(Color c, boolean temp, double startX, double startY, double vx, double vy, int life, double size) {
-            this.c = c;
-            this.temporary = temp; this.x = startX; this.y = startY; this.speedX = vx; this.speedY = vy; this.initialSpeedX = vx;
+            this.c = c; this.temporary = temp; this.x = startX; this.y = startY; this.speedX = vx; this.speedY = vy; this.initialSpeedX = vx;
             this.initialSpeedY = vy; this.life = life; this.maxLife = life; this.size = size;
         }
         public void reset(Color c, boolean temp, double startX, double startY, double vx, double vy, int life, double size) {
-            this.c = c;
-            this.temporary = temp; this.x = startX; this.y = startY; this.speedX = vx; this.speedY = vy; this.initialSpeedX = vx;
+            this.c = c; this.temporary = temp; this.x = startX; this.y = startY; this.speedX = vx; this.speedY = vy; this.initialSpeedX = vx;
             this.initialSpeedY = vy; this.life = life; this.maxLife = life; this.size = size;
         }
         public boolean update() {
-            if (temporary) { y -= speedY;
-                x += speedX; speedX *= 0.95; speedY *= 0.95; life--; return life <= 0;
-            }
+            if (temporary) { y -= speedY; x += speedX; speedX *= 0.95; speedY *= 0.95; life--; return life <= 0; }
             y -= speedY; x += speedX;
             if(y < 0) { y = 480; x = Math.random() * 1350; } return false;
         }
         public void draw(Graphics2D g) {
-            int alpha = temporary ?
-                    Math.max(0, Math.min(255, (int)((life / (double)maxLife) * 255))) : 60;
-
+            int alpha = temporary ? Math.max(0, Math.min(255, (int)((life / (double)maxLife) * 255))) : 60;
             g.setColor(getAlphaColor(c, alpha));
-
             double velocity = Math.sqrt(speedX*speedX + speedY*speedY);
             if(velocity > 2.0 && temporary) {
                 AffineTransform oldT = g.getTransform();
@@ -808,9 +913,10 @@ public class Vanguards extends JFrame {
                     + "<li><b>ATK:</b> Increases damage dealt.</li><li><b>DEF:</b> Reduces damage taken.</li><li><b>SPD:</b> Increases Evasion & Parry chances.</li><li><b>LUK:</b> Increases Critical Hit chance.</li></ul></td>"
                     + "<td width='50%' valign='top' bgcolor='#2a2a35'><div align='left'><h3><font color='#D4AF37'>EQUIPMENT & LIMITS</font></h3></div><ul>"
                     + "<li><b>Weapons:</b> Max 2 equipped</li><li><b>Armor:</b> Max 4 equipped</li><li><b>Relics:</b> Max 10 equipped</li></ul>Equipment grants massive stat bonuses and passives.</td></tr></table><br>"
-                    + "<div align='left' bgcolor='#2a2a35' style='padding: 10px;'><h2><font color='#D4AF37'>SHOP & BOUNTIES</font></h2>Slay enemies to earn Gold and complete Bounties. "
+                    + "<div align='left' bgcolor='#2a2a35' style='padding: 10px;'><h2><font color='#D4AF37'>SHOP & BOUNTIES</font></h2>Slay enemies to earn Gold and complete Bounties."
                     + "Use Gold in the Shop to buy gear, potions, and upgrades. The Shop refreshes every 3 battles.<br><br>"
-                    + "<h2><font color='#D4AF37'>MYSTERY BOX PITY</font></h2>If you hit 4 low-tier drops in a row, the 5th box guarantees Epic or higher.</div></body></html>";
+                    + "<h2><font color='#D4AF37'>MYSTERY BOX PITY</font></h2>If you hit 4 low-tier drops in a row, the 5th box guarantees Epic or higher.<br><br>"
+                    + "<h2><font color='#00FFFF'>AWAKENING</font></h2>Reach Level 5 and max out Energy to unlock your Awakened Class. Lasts for 5 turns and dramatically buffs all core stats!</div></body></html>";
             JTextPane descPane = new JTextPane(); descPane.setContentType("text/html"); descPane.setText(tutorialHtml); descPane.setEditable(false); descPane.setOpaque(false); descPane.setHighlighter(null);
             JScrollPane scrollPane = new JScrollPane(descPane); scrollPane.setBorder(null); scrollPane.setOpaque(false); scrollPane.getViewport().setOpaque(false); add(scrollPane, BorderLayout.CENTER);
             JPanel btnPanel = new JPanel(); btnPanel.setOpaque(false); StylizedButton btn = new StylizedButton("CHOOSE YOUR HERO"); btn.setFont(new Font("SansSerif", Font.BOLD, 24)); btn.setPreferredSize(new Dimension(350, 60));
@@ -837,8 +943,13 @@ public class Vanguards extends JFrame {
         private String prayerPhase = "NONE"; private int prayerTimerRemaining = 0; private int prayerTimerMax = 1;
         private String godMessage = ""; private String currentQuestion = ""; private String correctAnswer = ""; private int selectedDifficulty = 0;
         private String[] currentOptions;
-        private boolean inUltCutscene = false; private int ultCutsceneTick = 0; private Runnable pendingUltDamage = null; private Player pendingUltPlayer = null;
+
+        private boolean inUltCutscene = false; private int ultCutsceneTick = 0; private Runnable pendingUltDamage = null;
+        private Player pendingUltPlayer = null;
         private String activeUltName = "";
+
+        private boolean inTransformCutscene = false; private int transformCutsceneTick = 0; private Runnable pendingTransform = null;
+        private Player pendingTransformPlayer = null;
 
         public BattlePanel() {
             setLayout(new BorderLayout());
@@ -848,7 +959,8 @@ public class Vanguards extends JFrame {
             renderArea.setLayout(null);
             StylizedButton speedBtn = new StylizedButton(fastForward ? "⏩ SPEED: 2X" : "▶ SPEED: 1X");
             if (fastForward) speedBtn.setForeground(Color.YELLOW);
-            speedBtn.setBounds(810, 10, 130, 40); speedBtn.setFocusable(false); speedBtn.addActionListener(e -> toggleSpeed(speedBtn)); renderArea.add(speedBtn);
+            speedBtn.setBounds(810, 10, 130, 40);
+            speedBtn.setFocusable(false); speedBtn.addActionListener(e -> toggleSpeed(speedBtn)); renderArea.add(speedBtn);
             JPanel bottomSection = new JPanel(new BorderLayout()); bottomSection.setPreferredSize(new Dimension(950, 380)); bottomSection.setBackground(PANEL_BG);
             bottomSection.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(4, 0, 0, 0, ACCENT_COL), BorderFactory.createEmptyBorder(10, 10, 10, 10)));
             log = new JTextArea(); log.setBackground(new Color(15, 15, 22)); log.setForeground(TEXT_LIGHT);
@@ -857,11 +969,17 @@ public class Vanguards extends JFrame {
             menuPanel.setOpaque(false); bottomSection.add(logScroll, BorderLayout.WEST); bottomSection.add(menuPanel, BorderLayout.CENTER);
             sideShopPanel.setPreferredSize(new Dimension(300, 900)); sideShopPanel.setBackground(new Color(20, 20, 28));
             add(renderArea, BorderLayout.CENTER); add(bottomSection, BorderLayout.SOUTH); add(sideShopPanel, BorderLayout.EAST);
+
             gameLoop = new Timer(30, e -> {
                 if(fastForward) tick+=2;
                 if (inUltCutscene) {
                     ultCutsceneTick += fastForward ? 2 : 1;
                     if (ultCutsceneTick > 80) { inUltCutscene = false; if (pendingUltDamage != null) pendingUltDamage.run(); }
+                    repaint(); return;
+                }
+                if (inTransformCutscene) {
+                    transformCutsceneTick += fastForward ? 2 : 1;
+                    if (transformCutsceneTick > 80) { inTransformCutscene = false; if (pendingTransform != null) pendingTransform.run(); }
                     repaint(); return;
                 }
                 if (prayerActive) {
@@ -1057,7 +1175,12 @@ public class Vanguards extends JFrame {
             else if(player.cls == ClassType.PALADIN) ultName = "Heaven's Wrath"; else if(player.cls == ClassType.RONIN) ultName = "Oblivion Slash";
             else if(player.cls == ClassType.BARD) ultName = "Symphony of Destruction"; else if(player.cls == ClassType.DRUID) ultName = "Nature's Fury";
             else if(player.cls == ClassType.NECROMANCER) ultName = "Army of the Dead"; else if(player.cls == ClassType.ALCHEMIST) ultName = "Philosopher's Detonation";
-            moves.add("[ULTIMATE] " + ultName + " (100 EN)"); return moves;
+            moves.add("[ULTIMATE] " + ultName + " (100 EN)");
+
+            if (!player.isTransformed && player.level >= 5) {
+                moves.add("[AWAKEN] " + player.cls.awakenedName + " (100 EN)");
+            }
+            return moves;
         }
 
         private JPanel createFamiliarCard(Familiar f, Player p) {
@@ -1088,11 +1211,14 @@ public class Vanguards extends JFrame {
                 for(String m : moves) {
                     StylizedButton b = new StylizedButton("[" + idx + "] " + m);
                     b.setPreferredSize(new Dimension(240, 50));
-                    boolean isUlt = m.contains("[ULTIMATE]"); int cost = isUlt ? 100 : (m.contains("(15 EN)") ? 15 : m.contains("(20 EN)") ? 20 : m.contains("(30 EN)") ? 30 : m.contains("(35 EN)") ? 35 : m.contains("(40 EN)") ? 40 : 0);
-                    if(player.energy < cost || (isUlt && player.ultStacks < 12)) { b.setForeground(Color.DARK_GRAY);
-                    }
+                    boolean isUlt = m.contains("[ULTIMATE]");
+                    boolean isAwaken = m.contains("[AWAKEN]");
+                    int cost = (isUlt || isAwaken) ? 100 : (m.contains("(15 EN)") ? 15 : m.contains("(20 EN)") ? 20 : m.contains("(30 EN)") ? 30 : m.contains("(35 EN)") ? 35 : m.contains("(40 EN)") ? 40 : 0);
+                    if(player.energy < cost || (isUlt && player.ultStacks < 12)) { b.setForeground(Color.DARK_GRAY); }
+                    if (isAwaken) b.setForeground(Color.CYAN);
+
                     int expectedDamage = calculateBaseDamage(m, player);
-                    b.setToolTipText(isUlt ? "Expected Base Damage: " + expectedDamage + " (Requires 12 Stacks & 100 EN)" : "Expected Base Damage: " + expectedDamage);
+                    b.setToolTipText(isAwaken ? "Dramatically boosts all stats for 5 turns." : (isUlt ? "Expected Base Damage: " + expectedDamage + " (Requires 12 Stacks & 100 EN)" : "Expected Base Damage: " + expectedDamage));
                     b.addActionListener(e -> { if(!inputLocked) executeAttack(m); }); content.add(b); idx++;
                 }
             } else if(key.equals("FAMILIARS")) {
@@ -1156,7 +1282,7 @@ public class Vanguards extends JFrame {
                 JPanel mainStatPanel = new JPanel(new BorderLayout(10, 10)); mainStatPanel.setOpaque(false);
                 JPanel headerPanel = new JPanel(new GridLayout(1, 2)); headerPanel.setOpaque(false);
                 headerPanel.setBorder(new MatteBorder(0, 0, 2, 0, ACCENT_COL));
-                headerPanel.add(createStatLabel("CLASS:", player.cls.title, ACCENT_COL)); headerPanel.add(createStatLabel("LEVEL:", String.valueOf(player.level), TEXT_DARK)); mainStatPanel.add(headerPanel, BorderLayout.NORTH);
+                headerPanel.add(createStatLabel("CLASS:", player.isTransformed ? player.cls.awakenedName : player.cls.title, ACCENT_COL)); headerPanel.add(createStatLabel("LEVEL:", String.valueOf(player.level), TEXT_DARK)); mainStatPanel.add(headerPanel, BorderLayout.NORTH);
                 JPanel columns = new JPanel(new GridLayout(1, 3, 15, 0)); columns.setOpaque(false);
                 JPanel coreBox = new JPanel(new GridLayout(0, 1, 5, 5)); coreBox.setOpaque(false);
                 coreBox.add(new JLabel("<html><font color='#D4AF37'><b>CORE ATTRIBUTES</b></font></html>"));
@@ -1311,7 +1437,8 @@ public class Vanguards extends JFrame {
             items.setLayout(new BoxLayout(items, BoxLayout.Y_AXIS)); items.setOpaque(false); items.setBorder(new EmptyBorder(10, 10, 10, 10));
 
             for(Item it : shopStock) {
-                int actualPrice = (p.shopDiscount && it instanceof Equipment) ? it.price / 2 : it.price;
+                int actualPrice = (p.shopDiscount && it instanceof Equipment) ?
+                        it.price / 2 : it.price;
                 StylizedButton btn = new StylizedButton("<html><center>" + it.name + "<br>" + actualPrice + "G" + (actualPrice < it.price ? " (50% OFF)" : "") + "</center></html>");
                 btn.setPreferredSize(new Dimension(240, 60)); btn.setMaximumSize(new Dimension(240, 60)); btn.setAlignmentX(Component.CENTER_ALIGNMENT);
                 if(it instanceof Equipment) { btn.setForeground(((Equipment)it).rarity.col);
@@ -1331,7 +1458,8 @@ public class Vanguards extends JFrame {
                             if(it.name.contains("Greater")) p.greaterPots++; else if(it.name.contains("Damage")) p.dmgBuffs++;
                             else if(it.name.contains("Mystery Box")) { Equipment dropped = generateProceduralEquipment(true); log.append("[GACHA] Box contained: " + dropped.name + " (" + dropped.rarity.name + ")!\n"); gainItem(dropped); }
                             else if(it.name.contains("Elixir")) { p.atk += 2; p.def += 2; log.append("[SYS] Gained +2 Permanent ATK/DEF!\n"); }
-                            else if(it.name.contains("Familiar Crystal")) { p.hasPet = true; log.append("[SYS] Summoned a Familiar!\n"); }
+                            else if(it.name.contains("Familiar Crystal")) { p.hasPet = true;
+                                log.append("[SYS] Summoned a Familiar!\n"); }
                             else if(it.name.contains("Summon Familiar")) {
                                 if(p.ownedFamiliars.size() < 5) { Familiar newFam = generateRandomFamiliar();
                                     p.ownedFamiliars.add(newFam); if(p.equippedFamiliars.size() < 2) p.equippedFamiliars.add(newFam); log.append("[SYS] Summoned Familiar: " + newFam.name + "!\n");
@@ -1432,11 +1560,36 @@ public class Vanguards extends JFrame {
 
         private void executeAttack(String move) {
             Player p = state.player;
-            boolean isUlt = move.contains("[ULTIMATE]"); int cost = isUlt ? 100 : (move.contains("(15 EN)") ? 15 : move.contains("(20 EN)") ? 20 : move.contains("(30 EN)") ? 30 : move.contains("(35 EN)") ? 35 : move.contains("(40 EN)") ? 40 : 0);
-            if(isUlt && p.ultStacks < 12) { log.append("[SYS] Requires 12 Ultimate Stacks!\n"); return;
+
+            if (move.contains("[AWAKEN]")) {
+                if (p.energy < 100) { log.append("[SYS] Requires 100 Energy to Awaken!\n"); return; }
+                inputLocked = true;
+                setMenu("EMPTY");
+                p.energy -= 100;
+                p.currentAnim = "WINDUP";
+                p.animTick = 0;
+                p.onAnimComplete = () -> {
+                    log.append("[COMBAT] " + p.name + " is awakening their true power!\n");
+                    inTransformCutscene = true;
+                    transformCutsceneTick = 0;
+                    pendingTransformPlayer = p;
+                    pendingTransform = () -> {
+                        p.isTransformed = true;
+                        p.transformTurns = 5;
+                        p.heal(p.getTotalMaxHp() / 2);
+                        log.append("[COMBAT] " + p.name + " transformed into " + p.cls.awakenedName + "!\n");
+                        dmgNums.add(new DamageNumber(0, 280, 220, Color.CYAN, "AWAKENED!"));
+                        screenShake = 30;
+                        endPlayerTurn();
+                    };
+                };
+                return;
             }
-            if(p.energy < cost) { log.append("[SYS] Not enough Energy!\n");
-                return; }
+
+            boolean isUlt = move.contains("[ULTIMATE]");
+            int cost = isUlt ? 100 : (move.contains("(15 EN)") ? 15 : move.contains("(20 EN)") ? 20 : move.contains("(30 EN)") ? 30 : move.contains("(35 EN)") ? 35 : move.contains("(40 EN)") ? 40 : 0);
+            if(isUlt && p.ultStacks < 12) { log.append("[SYS] Requires 12 Ultimate Stacks!\n"); return; }
+            if(p.energy < cost) { log.append("[SYS] Not enough Energy!\n"); return; }
 
             inputLocked = true;
             setMenu("EMPTY");
@@ -1445,33 +1598,30 @@ public class Vanguards extends JFrame {
             Runnable processDamage = () -> {
                 boolean isCrit = Math.random() < ((p.getTotalLuk() + p.crt) * 0.015);
                 double comboMult = 1.0 + (p.combo * 0.05); int baseDmg = calculateBaseDamage(move, p);
-                if(p.activeBuffTurns > 0)
-                { baseDmg *= 1.5; } if(p.prayerBuffTurns > 0) { baseDmg = (int)(baseDmg * p.prayerBuffMult); log.append("[COMBAT] False God's Blessing active! Damage amplified.\n"); }
+                if(p.activeBuffTurns > 0) { baseDmg *= 1.5; }
+                if(p.prayerBuffTurns > 0) { baseDmg = (int)(baseDmg * p.prayerBuffMult); log.append("[COMBAT] False God's Blessing active! Damage amplified.\n"); }
                 if(enemy.weakTurns > 0) { baseDmg *= 1.2; }
-                for(Weapon w : p.equippedWeapons) { if("Operator's Precision".equals(w.passive)) baseDmg *= 1.2;
-                    if("Sorcerer's Echo".equals(w.passive) && Math.random() < 0.25) { baseDmg *= 2; log.append("[COMBAT] Sorcerer's Echo Double Cast!\n");
-                    } }
+                for(Weapon w : p.equippedWeapons) {
+                    if("Operator's Precision".equals(w.passive)) baseDmg *= 1.2;
+                    if("Sorcerer's Echo".equals(w.passive) && Math.random() < 0.25) { baseDmg *= 2; log.append("[COMBAT] Sorcerer's Echo Double Cast!\n"); }
+                }
                 if(isCrit) baseDmg *= 2.0;
                 int finalDmg = (int)(baseDmg * comboMult); int reducedDmg = finalDmg - enemy.def;
                 if(enemy.elite == EliteModifier.ARMORED) reducedDmg -= enemy.def;
                 if(reducedDmg < 1) reducedDmg = 1;
-                enemy.takeDamage(reducedDmg); screenShake = isCrit ?
-                        15 : (isUlt ? 30 : 5);
+                enemy.takeDamage(reducedDmg); screenShake = isCrit ? 15 : (isUlt ? 30 : 5);
                 spawnImpactEffect(move, enemy.animX + 700, enemy.animY + 250);
                 if(isCrit) {
                     for(int i=0; i<10; i++) particles.add(spawnParticle(Color.YELLOW, true, enemy.animX + 700, enemy.animY + 250, (Math.random()-0.5)*15, (Math.random()-0.5)*15, 20, 6));
                 }
 
-                Color dmgColor = isCrit ?
-                        Color.YELLOW : (p.combo > 3 ? Color.ORANGE : Color.WHITE); if(isUlt) dmgColor = ULT_MAGENTA;
+                Color dmgColor = isCrit ? Color.YELLOW : (p.combo > 3 ? Color.ORANGE : Color.WHITE); if(isUlt) dmgColor = ULT_MAGENTA;
                 dmgNums.add(new DamageNumber(reducedDmg, 780, 280, dmgColor, reducedDmg + (p.combo > 3 || isUlt ? "!" : "")));
                 log.append("[COMBAT] " + moveNameDisplay + (isCrit ? " CRIT for " : " hits for ") + reducedDmg + " dmg (Combo x" + p.combo + ")\n");
-                if(move.contains("[BURN]")) { enemy.burnTurns += 3;
-                    log.append("[COMBAT] Enemy is BURNING!\n"); } if(move.contains("[POISON]")) { enemy.poisonTurns += 4; log.append("[COMBAT] Enemy is POISONED!\n");
-                }
-                if(move.contains("[WEAK]")) { enemy.weakTurns += 3;
-                    log.append("[COMBAT] Enemy is WEAKENED!\n"); } if(move.contains("[THORNS]")) { p.thornsTurns += 3; log.append("[COMBAT] Thorns Aura Active!\n");
-                }
+                if(move.contains("[BURN]")) { enemy.burnTurns += 3; log.append("[COMBAT] Enemy is BURNING!\n"); }
+                if(move.contains("[POISON]")) { enemy.poisonTurns += 4; log.append("[COMBAT] Enemy is POISONED!\n"); }
+                if(move.contains("[WEAK]")) { enemy.weakTurns += 3; log.append("[COMBAT] Enemy is WEAKENED!\n"); }
+                if(move.contains("[THORNS]")) { p.thornsTurns += 3; log.append("[COMBAT] Thorns Aura Active!\n"); }
                 if(move.contains("Shield Bash") && Math.random() < 0.4) { if(enemy.isBoss && Math.random() > 0.5) log.append("[COMBAT] Boss resisted STUN!\n");
                 else { enemy.stunned = true; log.append("[COMBAT] Enemy STUNNED!\n"); } }
 
@@ -1610,7 +1760,8 @@ public class Vanguards extends JFrame {
             String[] qa = generatePrayerQuestion(selectedDifficulty);
             currentQuestion = qa[0]; correctAnswer = qa[1];
             currentOptions = new String[]{qa[1], qa[2], qa[3], qa[4]};
-            prayerTimerRemaining = ticks; prayerTimerMax = ticks; prayerPhase = "QUESTION"; setMenu("PRAYER_Q");
+            prayerTimerRemaining = ticks; prayerTimerMax = ticks;
+            prayerPhase = "QUESTION"; setMenu("PRAYER_Q");
         }
 
         private String[] generatePrayerQuestion(int difficulty) {
@@ -1626,7 +1777,8 @@ public class Vanguards extends JFrame {
                     return pairs[r.nextInt(pairs.length)];
                 }
             } else if(difficulty == 2) {
-                if(type == 0) { int a = r.nextInt(9) + 2, b = r.nextInt(9) + 2; int ans = a*b;
+                if(type == 0) { int a = r.nextInt(9) + 2, b = r.nextInt(9) + 2;
+                    int ans = a*b;
                     return new String[]{a + " * " + b + " = ?", String.valueOf(ans), String.valueOf(ans+a), String.valueOf(ans-b), String.valueOf(ans+5)};
                 } else { String[][] pairs = {
                         {"The more there is, the less you see.", "darkness", "fog", "light", "smoke"},
@@ -1635,7 +1787,8 @@ public class Vanguards extends JFrame {
                     return pairs[r.nextInt(pairs.length)];
                 }
             } else {
-                if(type == 0) { int a = r.nextInt(5) + 3, b = r.nextInt(5) + 3, c = r.nextInt(10) + 1; int ans = (a*b)-c;
+                if(type == 0) { int a = r.nextInt(5) + 3, b = r.nextInt(5) + 3, c = r.nextInt(10) + 1;
+                    int ans = (a*b)-c;
                     return new String[]{"(" + a + " * " + b + ") - " + c + " = ?", String.valueOf(ans), String.valueOf(ans+2), String.valueOf(ans-3), String.valueOf(ans+c)};
                 } else { String[][] pairs = {
                         {"I have cities but no houses, water but no fish.", "map", "desert", "globe", "painting"},
@@ -1651,34 +1804,33 @@ public class Vanguards extends JFrame {
             prayerTimerRemaining = 60; boolean correct = answer.trim().equalsIgnoreCase(correctAnswer); Player p = state.player;
             if (correct) {
                 godMessage = "TRUTH SPOKEN. BE BLESSED.";
-
-                // --- PRAYER 10 FEATURES ---
                 p.heal(p.getTotalMaxHp());
-                p.energy += p.maxEnergy; // Feature 9: Energy Overcharge
+                p.energy += p.maxEnergy;
                 p.prayerBuffTurns = 3;
-                p.combo += 5; // Feature 1: Combo Synergy
-                p.shield += 500; // Feature 3: Divine Shield
-                p.bountyMultTurns = 3; // Feature 4: Bounty Multiplier
-                p.shopDiscount = true; // Feature 5: Shop Discount
+                p.combo += 5;
+                p.shield += 500;
+                p.bountyMultTurns = 3;
+                p.shopDiscount = true;
 
-                p.totalPrayers++; // Feature 7: Prayer Milestones
-                if(p.totalPrayers % 3 == 0) { p.str+=5; p.con+=5; p.dex+=5; p.intelligence+=5; p.wis+=5; p.cha+=5; }
+                p.totalPrayers++;
+                if(p.totalPrayers % 3 == 0) { p.str+=5;
+                    p.con+=5; p.dex+=5; p.intelligence+=5; p.wis+=5; p.cha+=5; }
 
-                if(!p.equippedFamiliars.isEmpty()) p.equippedFamiliars.get(0).isSynced = true; // Feature 6: Familiar Blessing
-
-                p.ultStacks = 12; // Feature 10: Instant Ultimate
+                if(!p.equippedFamiliars.isEmpty()) p.equippedFamiliars.get(0).isSynced = true;
+                p.ultStacks = 12;
 
                 if (selectedDifficulty == 1) p.prayerBuffMult = 1.2;
                 else if (selectedDifficulty == 2) p.prayerBuffMult = 1.3;
                 else if (selectedDifficulty == 3) {
                     p.prayerBuffMult = 1.5;
-                    p.hasResurrection = true; // Feature 8: Resurrection Idol
-                    if(Math.random() < 0.20) gainItem(generateProceduralEquipment(true)); // Feature 2: Godly Artifact Chance
+                    p.hasResurrection = true;
+                    if(Math.random() < 0.20) gainItem(generateProceduralEquipment(true));
                 }
 
                 int rStat = new Random().nextInt(6);
                 switch(rStat) { case 0: p.str++; break; case 1: p.con++; break; case 2: p.dex++; break;
-                    case 3: p.intelligence++; break; case 4: p.wis++; break; case 5: p.cha++; break;
+                    case 3: p.intelligence++; break;
+                    case 4: p.wis++; break; case 5: p.cha++; break;
                 }
                 log.append("[FALSE GOD] Correct! Fully Healed, Buffed, and granted massive boons!\n");
                 dmgNums.add(new DamageNumber(0, 280, 220, Color.GREEN, "BLESSED"));
@@ -1704,6 +1856,14 @@ public class Vanguards extends JFrame {
             if(p.thornsTurns > 0) p.thornsTurns--;
             if(p.activeBuffTurns > 0) { p.activeBuffTurns--; if(p.activeBuffTurns == 0) log.append("[COMBAT] Damage Buff expired.\n");
             }
+            if(p.isTransformed) {
+                p.transformTurns--;
+                if(p.transformTurns <= 0) {
+                    p.isTransformed = false;
+                    p.hp = Math.min(p.hp, p.getTotalMaxHp());
+                    log.append("[COMBAT] Transformation has faded.\n");
+                }
+            }
             for(Relic r : p.equippedRelics) { if("Regeneration".equals(r.passive)) p.heal((int)(p.getTotalMaxHp() * 0.05));
                 if("Titan Shield".equals(r.passive)) p.shield += 15; }
             if(enemy != null && enemy.hp > 0) {
@@ -1725,17 +1885,17 @@ public class Vanguards extends JFrame {
             Player p = state.player;
             log.append("[SYS] ENEMY VANQUISHED\n");
             p.winStreak++; p.fleePenalty = 10; state.bountyKills++; if (enemy.isBoss) rerollCost = 50;
-
-            // Feature 4 Tracker
             if (p.bountyMultTurns > 0) {
                 state.bountyKills++;
                 p.bountyMultTurns--;
                 log.append("[BOUNTY] Blessing doubled bounty progress!\n");
             }
 
-            if(enemy.hp < -(enemy.maxHp * 0.3)) { log.append("[SYS] OVERKILL! Bonus XP Awarded.\n"); p.xp += 50 + (enemy.level * 5);
+            if(enemy.hp < -(enemy.maxHp * 0.3)) { log.append("[SYS] OVERKILL! Bonus XP Awarded.\n");
+                p.xp += 50 + (enemy.level * 5);
             }
-            int drops = enemy.elite == EliteModifier.CORRUPTED ? 2 : 1;
+            int drops = enemy.elite == EliteModifier.CORRUPTED ?
+                    2 : 1;
             for(int i=0; i<drops; i++) { if(enemy.isBoss || Math.random() < 0.45 || enemy.elite == EliteModifier.CORRUPTED) { gainItem(generateProceduralEquipment(false));
             } }
             double goldMult = 1.0 + Math.min(1.5, p.winStreak * 0.05);
@@ -1744,8 +1904,7 @@ public class Vanguards extends JFrame {
             if(state.bountyKills >= state.bountyTarget) { p.gold += state.bountyReward;
                 log.append("[BOUNTY] Completed! Earned " + state.bountyReward + "G\n"); dmgNums.add(new DamageNumber(state.bountyReward, 650, 250, Color.YELLOW, "BOUNTY!")); state.bountyKills = 0; state.bountyTarget += 2;
                 state.bountyReward += 50; }
-            p.xp += enemy.isBoss ?
-                    400 : 100; p.shield = 0; state.encounters++; encountersUntilRefresh--; updateWindowTitle();
+            p.xp += enemy.isBoss ? 400 : 100; p.shield = 0; state.encounters++; encountersUntilRefresh--; updateWindowTitle();
             if(encountersUntilRefresh <= 0) { refreshShop(); encountersUntilRefresh = 3; } else buildSideShop();
             Timer t = new Timer(1500, e -> {
                 if (state.encounters % 5 == 0) {
@@ -1791,8 +1950,7 @@ public class Vanguards extends JFrame {
                     dmgNums.add(new DamageNumber(0, 280, 280, Color.YELLOW, "PARRY!")); p.energy = Math.min(p.maxEnergy, p.energy + 10);
                 }
                 else {
-                    double bossEnrageMult = (enemy.isBoss && enemy.turnCounter > 8) ?
-                            1.5 : 1.0; double weaknessMult = (enemy.weakTurns > 0) ? 0.6 : 1.0;
+                    double bossEnrageMult = (enemy.isBoss && enemy.turnCounter > 8) ? 1.5 : 1.0; double weaknessMult = (enemy.weakTurns > 0) ? 0.6 : 1.0;
                     int ed = (int)((enemy.atk * bossEnrageMult * weaknessMult) - (p.getTotalDef())/2);
                     if(enemy.isBoss && enemy.turnCounter % 4 == 0) { ed *= 2.5; log.append("[COMBAT] OVERLORD USES DEVASTATING STRIKE!\n"); screenShake = 20;
                     }
@@ -1895,6 +2053,17 @@ public class Vanguards extends JFrame {
                 return;
             }
 
+            if (inTransformCutscene && pendingTransformPlayer != null) {
+                g.setColor(getAlphaColor(Color.WHITE, Math.min(255, transformCutsceneTick * 12)));
+                g.fillRect(0, 0, 950, 480);
+                g.setColor(Color.BLACK);
+                g.setFont(FONT_ULT_CUTSCENE);
+                String awakenText = "AWAKEN: " + pendingTransformPlayer.cls.awakenedName.toUpperCase();
+                int textX = 475 - g.getFontMetrics().stringWidth(awakenText) / 2;
+                drawGlowText(g, awakenText, textX, 240, Color.BLACK, pendingTransformPlayer.cls.color);
+                return;
+            }
+
             if(enemy != null && enemy.isBoss && enemy.turnCounter % 4 == 3) {
                 g.setColor(getAlphaColor(Color.RED, 40));
                 g.fillRect(0, 0, 950, 480);
@@ -1945,7 +2114,6 @@ public class Vanguards extends JFrame {
                 g.fillOval(cx + 13, cy - 5, 12, 6); g.fillOval(cx - 15, cy + 15, 10, 5);
                 g.fillOval(cx + 5, cy + 15, 10, 5);
 
-                // Improved Godly Dialogue Box
                 g.setColor(new Color(20, 20, 25, 220));
                 g.fillRoundRect(cx - 250, cy + 90, 500, 60, 15, 15);
                 g.setColor(new Color(255, 215, 0));
